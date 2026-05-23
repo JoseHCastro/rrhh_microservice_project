@@ -1,0 +1,103 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: rrhh_postgres
+    environment:
+      POSTGRES_USER: rrhh
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: rrhh_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rrhh_network
+
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    container_name: rrhh_dynamodb
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    volumes:
+      - dynamodb_data:/home/dynamodblocal/data
+    networks:
+      - rrhh_network
+
+  rrhh_nest:
+    build:
+      context: ./rrhh_nest
+      dockerfile: Dockerfile
+    container_name: rrhh_nest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    volumes:
+      - ./rrhh_nest:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    networks:
+      - rrhh_network
+    depends_on:
+      - postgres
+      - dynamodb
+
+  rrhh_fastapi:
+    build:
+      context: ./rrhh_fastapi
+      dockerfile: Dockerfile
+    container_name: rrhh_fastapi
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+    volumes:
+      - ./rrhh_fastapi:/app
+    networks:
+      - rrhh_network
+    depends_on:
+      - postgres
+      - dynamodb
+
+  rrhh_spring_boot:
+    build:
+      context: ./rrhh_spring_boot
+      dockerfile: Dockerfile
+    container_name: rrhh_spring_boot
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rrhh_db
+      - SPRING_DATASOURCE_USERNAME=rrhh
+      - SPRING_DATASOURCE_PASSWORD=123
+    volumes:
+      - ./rrhh_spring_boot:/app
+      - spring_m2:/root/.m2
+    networks:
+      - rrhh_network
+    depends_on:
+      - postgres
+
+  rrhh_front_angular:
+    build:
+      context: ./rrhh_front_angular
+      dockerfile: Dockerfile
+    container_name: rrhh_front_angular
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./rrhh_front_angular:/app
+      - /app/node_modules
+    networks:
+      - rrhh_network
+
+networks:
+  rrhh_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  dynamodb_data:
+  spring_m2:
