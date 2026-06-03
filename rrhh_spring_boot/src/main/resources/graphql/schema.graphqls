@@ -1,3 +1,265 @@
+# Scalars personalizados
+scalar Date
+scalar DateTime
+scalar Time
+scalar BigDecimal
+
+# ==================== ENUMS ====================
+
+enum NombreRol {
+    ROLE_ADMIN
+    ROLE_RRHH
+    ROLE_SUPERVISOR
+    ROLE_EMPLEADO
+}
+
+enum EstadoEmpleado {
+    ACTIVO
+    INACTIVO
+}
+
+enum EstadoSistema {
+    EMPAREJAR
+    EMPAREJADO
+    LECTURA
+    REGISTRADO
+}
+
+enum EstadoAsistencia {
+    REGISTRADO
+    RETRASO
+    MARCACION_OBSERVADA
+}
+
+enum EstadoPlanilla {
+    NORMAL
+    OBSERVADO
+}
+
+enum EstadoSolicitud {
+    PENDIENTE
+    APROBADA
+    RECHAZADA
+}
+
+# ==================== TYPES ====================
+
+type Rol {
+    id: ID!
+    nombre: NombreRol!
+}
+
+type Usuario {
+    id: ID!
+    username: String!
+    activo: Boolean!
+    createdAt: DateTime
+    roles: [UsuarioRol!]!
+}
+
+type UsuarioRol {
+    rol: Rol!
+}
+
+type Departamento {
+    id: ID!
+    nombre: String!
+    gerente: Empleado
+}
+
+type Cargo {
+    id: ID!
+    nombre: String!
+    salarioPorHora: BigDecimal!
+}
+
+type Empleado {
+    id: ID!
+    nombre: String!
+    apellido: String!
+    nombreCompleto: String!
+    fechaContratacion: Date!
+    estado: EstadoEmpleado!
+    departamento: Departamento!
+    cargo: Cargo!
+    supervisor: Empleado
+    horaEntrada: Time!
+    horaSalida: Time!
+    telefono: String
+    carnetIdentidad: String
+    # Relación bidireccional / fetch batch
+    usuario: Usuario
+}
+
+type EmpleadoPage {
+    content: [Empleado!]!
+    pageInfo: PageInfo!
+}
+
+type PageInfo {
+    totalElements: Int!
+    totalPages: Int!
+    currentPage: Int!
+    pageSize: Int!
+    hasNext: Boolean!
+}
+
+type SistemaConfig {
+    id: ID!
+    estado: EstadoSistema!
+    fechaHoraEstado: DateTime!
+}
+
+type ReconocimientoFacial {
+    id: ID!
+    empleado: Empleado!
+    codigoFacial: String!
+    fechaRegistro: DateTime!
+}
+
+type RegistroAsistencia {
+    id: ID!
+    empleado: Empleado!
+    horaEntrada: DateTime!
+    horaSalida: DateTime
+    ubicacionGps: String
+    estado: EstadoAsistencia!
+    estadoPlanilla: EstadoPlanilla!
+}
+
+type RegistroAsistenciaPage {
+    content: [RegistroAsistencia!]!
+    pageInfo: PageInfo!
+}
+
+type TipoAusencia {
+    id: ID!
+    nombre: String!
+}
+
+type SolicitudAusencia {
+    id: ID!
+    empleado: Empleado!
+    tipoAusencia: TipoAusencia!
+    fechaInicio: Date!
+    fechaFin: Date!
+    estado: EstadoSolicitud!
+    fechaSolicitud: DateTime!
+    aprobador: Usuario
+}
+
+type Preplanilla {
+    id: ID!
+    empleado: Empleado!
+    periodo: String!
+    s3KeyUri: String
+    diasTrabajados: Int!
+    faltas: Int!
+    retrasos: Int!
+    permisosAprobados: Int!
+    licencias: Int!
+    horasExtra: BigDecimal!
+    marcacionesObservadas: Int!
+    fechaCreacion: DateTime!
+}
+
+type TokenPush {
+    id: ID!
+    tokenFcm: String!
+    dispositivo: String
+    activo: Boolean!
+    createdAt: DateTime
+}
+
+# ==================== INPUTS ====================
+
+input EmpleadoInput {
+    nombre: String!
+    apellido: String!
+    fechaContratacion: Date!
+    departamentoId: ID!
+    cargoId: ID!
+    supervisorId: ID
+    horaEntrada: Time!
+    horaSalida: Time!
+    telefono: String
+    carnetIdentidad: String
+}
+
+input RegistroAsistenciaInput {
+    codigoFacial: String!
+    ubicacionGps: String
+}
+
+input SolicitudAusenciaInput {
+    empleadoId: ID!
+    tipoAusenciaId: ID!
+    fechaInicio: Date!
+    fechaFin: Date!
+}
+
+input TokenPushInput {
+    tokenFcm: String!
+    dispositivo: String
+}
+
+# ==================== QUERIES & MUTATIONS ====================
+
 type Query {
-    hello: String!
+    # Usuarios
+    usuarios: [Usuario!]!
+    usuario(id: ID!): Usuario
+
+    # Empleados
+    empleados(page: Int, size: Int, estado: EstadoEmpleado, departamentoId: ID): EmpleadoPage!
+    empleado(id: ID!): Empleado
+
+    # Departamentos y Cargos
+    departamentos: [Departamento!]!
+    departamento(id: ID!): Departamento
+    cargos: [Cargo!]!
+    cargo(id: ID!): Cargo
+
+    # Asistencia y Ausencias
+    sistemaConfigEstado: SistemaConfig
+    registrosAsistencia(empleadoId: ID, desde: DateTime, hasta: DateTime, page: Int, size: Int): RegistroAsistenciaPage!
+    tiposAusencia: [TipoAusencia!]!
+    solicitudesAusencia(estado: EstadoSolicitud, empleadoId: ID): [SolicitudAusencia!]!
+
+    # Planilla
+    preplanillas(empleadoId: ID, periodo: String): [Preplanilla!]!
+    preplanilla(id: ID!): Preplanilla
+}
+
+type Mutation {
+    # Usuarios
+    activarUsuario(id: ID!): Boolean!
+    desactivarUsuario(id: ID!): Boolean!
+    asignarRol(usuarioId: ID!, rol: NombreRol!): Usuario!
+
+    # Empleados
+    crearEmpleado(input: EmpleadoInput!): Empleado!
+    actualizarEmpleado(id: ID!, input: EmpleadoInput!): Empleado!
+    desactivarEmpleado(id: ID!): Boolean!
+
+    # Departamentos
+    crearDepartamento(nombre: String!): Departamento!
+
+    # Asistencia e IoT
+    cambiarEstadoSistema(estado: EstadoSistema!): SistemaConfig!
+    enrolarRostro(empleadoId: ID!, codigoFacial: String!): ReconocimientoFacial!
+    registrarEntrada(input: RegistroAsistenciaInput!): RegistroAsistencia!
+    registrarSalida(codigoFacial: String!): RegistroAsistencia!
+
+    # Ausencias
+    crearSolicitudAusencia(input: SolicitudAusenciaInput!): SolicitudAusencia!
+    aprobarSolicitudAusencia(id: ID!): SolicitudAusencia!
+    rechazarSolicitudAusencia(id: ID!): SolicitudAusencia!
+
+    # Planilla
+    generarPreplanilla(empleadoId: ID!, periodo: String!): Preplanilla!
+
+    # Push Tokens
+    registrarTokenPush(input: TokenPushInput!): TokenPush!
+    revocarTokenPush(tokenFcm: String!): Boolean!
 }

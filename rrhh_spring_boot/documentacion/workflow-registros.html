@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow de Negocio - Escenario de Prueba</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: none;
+            color: #2980b9;
+        }
+        .summary-box {
+            background-color: #fff;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-card h4 {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+        .stat-card .number {
+            font-size: 2em;
+            color: #3498db;
+            font-weight: bold;
+            margin: 10px 0 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .badge-admin { background: #e74c3c; color: white; }
+        .badge-rrhh { background: #f39c12; color: white; }
+        .badge-supervisor { background: #2980b9; color: white; }
+        .badge-empleado { background: #27ae60; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>🏢 Workflow de Negocio: Escenario "TechVentures C.A."</h1>
+    
+    <div class="summary-box">
+        <p><strong>Descripción General:</strong> Este documento explica el escenario de negocio simulado en el archivo de migración <code>V4__test_data.sql</code>. Representa la actividad real de una empresa tecnológica (TechVentures C.A.) durante un período de tres meses (Marzo a Mayo de 2026), respetando todas las reglas de normalización (3NF), dependencias y restricciones de la base de datos.</p>
+    </div>
+
+    <h2>📊 Resumen de Datos Generados</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h4>Usuarios</h4>
+            <div class="number">38</div>
+        </div>
+        <div class="stat-card">
+            <h4>Empleados</h4>
+            <div class="number">37</div>
+        </div>
+        <div class="stat-card">
+            <h4>Departamentos</h4>
+            <div class="number">4</div>
+        </div>
+        <div class="stat-card">
+            <h4>Preplanillas S3</h4>
+            <div class="number">109</div>
+        </div>
+        <div class="stat-card">
+            <h4>Solicitudes de Ausencia</h4>
+            <div class="number">30</div>
+        </div>
+        <div class="stat-card">
+            <h4>Registros de Asistencia</h4>
+            <div class="number">60</div>
+        </div>
+    </div>
+
+    <h2>👥 Distribución de la Organización</h2>
+    <p>La empresa está dividida en 4 departamentos funcionales, cada uno con un gerente y su respectivo personal:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Departamento</th>
+                <th>Gerente</th>
+                <th>Roles Asignados</th>
+                <th>Total Personal</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Recursos Humanos</td>
+                <td>Valeria Mendoza</td>
+                <td><span class="badge badge-rrhh">ROLE_RRHH</span> (3)</td>
+                <td>3 empleados</td>
+            </tr>
+            <tr>
+                <td>Tecnología e Innovación</td>
+                <td>Carlos Rondón</td>
+                <td><span class="badge badge-supervisor">ROLE_SUPERVISOR</span> (1) <br> <span class="badge badge-empleado">ROLE_EMPLEADO</span> (9)</td>
+                <td>10 empleados</td>
+            </tr>
+            <tr>
+                <td>Operaciones & Logística</td>
+                <td>Sofía Paredes</td>
+                <td><span class="badge badge-supervisor">ROLE_SUPERVISOR</span> (1) <br> <span class="badge badge-empleado">ROLE_EMPLEADO</span> (9)</td>
+                <td>10 empleados (1 INACTIVO)</td>
+            </tr>
+            <tr>
+                <td>Comercial & Ventas</td>
+                <td>Patricia Fuentes</td>
+                <td><span class="badge badge-supervisor">ROLE_SUPERVISOR</span> (2) <br> <span class="badge badge-empleado">ROLE_EMPLEADO</span> (12)</td>
+                <td>14 empleados</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>⚙️ Secuencia Lógica de Inserción (Respetando Foreign Keys)</h2>
+    <p>Para evitar errores de violación de integridad referencial, los datos fueron insertados en el siguiente orden estricto:</p>
+    <ol>
+        <li><strong>Cargos y Departamentos (Base):</strong> Se crearon 14 cargos distintos con diferentes salarios y los 4 departamentos principales (con <code>gerente_id = NULL</code> temporalmente).</li>
+        <li><strong>Empleados:</strong> Se insertaron los 37 empleados, asignando su <code>cargo_id</code>, <code>departamento_id</code> y <code>supervisor_id</code> (permitiendo jerarquías reales).</li>
+        <li><strong>Actualización de Gerentes:</strong> Se hizo un <code>UPDATE</code> en la tabla de departamentos para asignar el <code>gerente_id</code> correspondiente.</li>
+        <li><strong>Usuarios y Roles:</strong> Se crearon cuentas de usuario para los 37 empleados (más el admin existente), con hash BCrypt válido (<code>password123</code>). Se asignaron los roles <code>ROLE_RRHH</code>, <code>ROLE_SUPERVISOR</code> y <code>ROLE_EMPLEADO</code> según el departamento y cargo.</li>
+        <li><strong>Biometría e IoT:</strong> Se generaron 37 hashes faciales simulados para el enrolamiento en portería.</li>
+        <li><strong>Asistencia Diaria:</strong> Se generó una muestra de 60 marcaciones (con latitud/longitud real de Caracas) para 6 empleados clave durante Abril y Mayo, simulando llegadas a tiempo, retrasos, y omisiones de marcado.</li>
+        <li><strong>Solicitudes de Ausencia:</strong> 30 solicitudes (vacaciones, permisos médicos) en diferentes estados (APROBADA, RECHAZADA, PENDIENTE) vinculadas al <code>aprobador_id</code>.</li>
+        <li><strong>Preplanillas (AWS S3):</strong> 109 registros simulando el cierre de nómina de Marzo, Abril y Mayo, con rutas lógicas <code>preplanillas/2026-XX/emp-YY.pdf</code>.</li>
+        <li><strong>Tokens FCM:</strong> 37 tokens generados algorítmicamente para simular dispositivos iOS y Android registrados para notificaciones push.</li>
+    </ol>
+
+    <h2>🔐 Credenciales de Prueba</h2>
+    <p>Todos los usuarios generados comparten la misma contraseña para facilitar las pruebas:</p>
+    <ul>
+        <li><strong>Password Universal:</strong> <code>password123</code></li>
+        <li><strong>Usuarios RRHH:</strong> <code>v.mendoza</code>, <code>l.guerrero</code>, <code>a.pacheco</code></li>
+        <li><strong>Usuarios Supervisores:</strong> <code>c.rondon</code>, <code>s.paredes</code>, <code>p.fuentes</code>, <code>r.sanchez</code></li>
+        <li><strong>Admin:</strong> <code>admin</code> (creado en V3)</li>
+    </ul>
+
+    <h2>🗂️ Simulación Híbrida DynamoDB (Auditoría)</h2>
+    <div class="summary-box">
+        <p>Los datos transaccionales se encuentran en PostgreSQL. Sin embargo, para representar el escenario completo, la arquitectura incluye <strong>Amazon DynamoDB</strong> para la tabla <code>BitacoraAuditoria</code>.</p>
+        <p><strong>Por qué:</strong> Para soportar operaciones de alta escritura (append-only) cuando los usuarios acceden al sistema o visualizan preplanillas, desacoplando la carga transaccional de PostgreSQL.</p>
+        <p><em>Nota: Los registros de DynamoDB no están en el script SQL, ya que deben insertarse a través del SDK de AWS en la aplicación.</em></p>
+    </div>
+
+</body>
+</html>

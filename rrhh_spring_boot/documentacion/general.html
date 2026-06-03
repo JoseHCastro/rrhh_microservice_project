@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación del Proyecto RRHH MVP</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        h1 { font-size: 2.5em; text-align: center; }
+        .section {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        code {
+            background: #eee;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            color: #d63031;
+        }
+        pre {
+            background: #2d3436;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: Consolas, monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th { background-color: #f2f2f2; }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .badge.query { background-color: #0984e3; }
+        .badge.mutation { background-color: #d63031; }
+    </style>
+</head>
+<body>
+
+    <h1>Documentación del Proyecto RRHH MVP</h1>
+
+    <div class="section">
+        <h2>1. Descripción del Proyecto</h2>
+        <p>Este proyecto es un <strong>MVP (Producto Mínimo Viable)</strong> de un sistema de Recursos Humanos (RRHH). Está diseñado usando una arquitectura basada en Spring Boot 3 con una API de <strong>GraphQL</strong>. El sistema maneja usuarios, empleados, departamentos, registros de asistencia (incluyendo enrolamiento de reconocimiento facial e IoT), ausencias y generación de preplanillas de sueldo.</p>
+    </div>
+
+    <div class="section">
+        <h2>2. Flujo de Funcionamiento</h2>
+        <ol>
+            <li><strong>Autenticación y Seguridad:</strong> Los usuarios acceden y obtienen un JWT, el cual es validado en cada petición.</li>
+            <li><strong>Gestión de Empleados:</strong> Se registran empleados asignándoles un departamento, cargo y horario laboral.</li>
+            <li><strong>Asistencia e IoT:</strong> El sistema puede estar en modo "EMPAREJAR" (para registrar rostros) o "LECTURA" (para asistencia). Las asistencias se marcan enviando un código facial y, opcionalmente, ubicación GPS.</li>
+            <li><strong>Ausencias:</strong> Los empleados solicitan permisos que pasan por un flujo de aprobación.</li>
+            <li><strong>Preplanillas:</strong> Al final de un ciclo, se genera una preplanilla calculando días trabajados, horas extra, faltas y retrasos para calcular el pago, almacenando los reportes en la nube (AWS S3).</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>3. Variables de Entorno (<code>.env</code>)</h2>
+        <p>La aplicación utiliza un archivo <code>.env</code> para inyectar configuración crítica sin necesidad de codificar credenciales en el código fuente (<i>hardcode</i>). Las variables clave son:</p>
+        <table>
+            <tr><th>Variable</th><th>Descripción</th><th>Ejemplo por Defecto</th></tr>
+            <tr><td><code>SPRING_PROFILES_ACTIVE</code></td><td>Perfil de Spring Boot (dev o prod)</td><td>dev</td></tr>
+            <tr><td><code>DB_HOST / PORT / NAME</code></td><td>Conexión a PostgreSQL</td><td>localhost / 5432 / rrhh_db</td></tr>
+            <tr><td><code>DB_USERNAME / PASSWORD</code></td><td>Credenciales de la Base de Datos</td><td>rrhh_user / rrhh_password</td></tr>
+            <tr><td><code>DB_POOL_MAX / MIN</code></td><td>Límites del pool de conexiones Hikari</td><td>10 / 2</td></tr>
+            <tr><td><code>JWT_SECRET</code></td><td>Clave secreta para firmar los tokens JWT (en Base64)</td><td>bXlTdXBlclNlY3Jld...</td></tr>
+            <tr><td><code>GRAPHIQL_ENABLED</code></td><td>Habilita la interfaz de prueba de GraphQL</td><td>true</td></tr>
+            <tr><td><code>AWS_*</code></td><td>Credenciales y configuración de Amazon S3</td><td>false / us-east-1</td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>4. Cómo Iniciar el Proyecto</h2>
+        <p>Asegúrate de tener Java 17 y PostgreSQL instalados.</p>
+        <ol>
+            <li>Renombra el archivo <code>.env.example</code> a <code>.env</code>.</li>
+            <li>Modifica las variables en <code>.env</code> para que coincidan con tu servidor local de PostgreSQL.</li>
+            <li>Abre una terminal en la raíz del proyecto.</li>
+            <li>Ejecuta el proyecto usando Maven Wrapper:
+                <pre><code># En Windows
+.\mvnw spring-boot:run
+
+# En Linux/Mac
+./mvnw spring-boot:run</code></pre>
+            </li>
+            <li>Accede a la interfaz interactiva de GraphQL en tu navegador: <a href="http://localhost:8080/graphiql" target="_blank">http://localhost:8080/graphiql</a></li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>5. API y Endpoints (GraphQL)</h2>
+        <p>A diferencia de REST (que tiene muchos endpoints como <code>/api/users</code> o <code>/api/empleados</code>), <strong>GraphQL expone un único endpoint</strong> principal para todas las operaciones:</p>
+        <pre><code>POST http://localhost:8080/graphql</code></pre>
+
+        <h3>¿Cómo comunicarse con el endpoint?</h3>
+        <p>Se debe enviar una petición HTTP POST en formato JSON con la clave <code>query</code>. Ejemplo usando Javascript (Fetch):</p>
+        <pre><code>fetch('http://localhost:8080/graphql', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer TU_TOKEN_JWT'
+  },
+  body: JSON.stringify({
+    query: `
+      query {
+        empleados {
+          content { id nombre apellido }
+        }
+      }
+    `
+  })
+})
+.then(res => res.json())
+.then(data => console.log(data));</code></pre>
+
+        <h3>Operaciones Disponibles</h3>
+        <p>Las operaciones en GraphQL se dividen en <strong>Queries</strong> (para leer datos) y <strong>Mutations</strong> (para crear, actualizar o borrar datos).</p>
+        
+        <h4><span class="badge query">QUERIES</span> (Consultas)</h4>
+        <ul>
+            <li><code>usuarios</code> / <code>usuario(id)</code>: Consulta de usuarios del sistema.</li>
+            <li><code>empleados(page, size, estado, departamentoId)</code>: Lista paginada y filtrada de empleados.</li>
+            <li><code>empleado(id)</code>: Detalles de un empleado en particular.</li>
+            <li><code>departamentos</code> / <code>cargos</code>: Catálogos de la empresa.</li>
+            <li><code>registrosAsistencia</code>: Historial de entradas y salidas de los empleados.</li>
+            <li><code>solicitudesAusencia</code>: Lista de solicitudes de permiso o vacaciones.</li>
+            <li><code>preplanillas</code>: Lectura del cálculo mensual/quincenal de nómina.</li>
+        </ul>
+
+        <h4><span class="badge mutation">MUTATIONS</span> (Acciones)</h4>
+        <ul>
+            <li><code>crearEmpleado</code> / <code>actualizarEmpleado</code> / <code>desactivarEmpleado</code>: Gestión del personal.</li>
+            <li><code>asignarRol</code> / <code>activarUsuario</code>: Gestión de cuentas de acceso al sistema.</li>
+            <li><code>cambiarEstadoSistema</code>: Permite cambiar entre modo "Registro de Rostro" y modo "Control de Asistencia" para IoT.</li>
+            <li><code>enrolarRostro</code>: Asigna un código biométrico a un empleado.</li>
+            <li><code>registrarEntrada</code> / <code>registrarSalida</code>: Almacena las marcaciones enviando coordenadas y biometría.</li>
+            <li><code>crearSolicitudAusencia</code> / <code>aprobarSolicitudAusencia</code> / <code>rechazarSolicitudAusencia</code>: Flujo de aprobación de permisos.</li>
+            <li><code>generarPreplanilla</code>: Procesa la asistencia y genera la preplanilla para pagos.</li>
+        </ul>
+    </div>
+
+</body>
+</html>

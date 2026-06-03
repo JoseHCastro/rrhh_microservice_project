@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación API GraphQL - TechVentures C.A.</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #475569;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--background);
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+        }
+
+        .sidebar h3 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .sidebar a:hover {
+            background-color: #f1f5f9;
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 280px;
+            padding: 3rem 4rem;
+            width: calc(100% - 280px);
+            max-width: 1200px;
+        }
+
+        h1 { font-size: 2.5rem; color: var(--text-main); margin-bottom: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; }
+        h2 { font-size: 1.8rem; color: var(--text-main); margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.4rem; color: var(--primary-dark); margin-top: 2rem; margin-bottom: 1rem; }
+        h4 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        
+        p { margin-bottom: 1rem; color: var(--secondary); }
+
+        /* Cover */
+        .cover {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            border-radius: 1rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .cover h1 { border: none; color: white; margin-bottom: 0.5rem; }
+        .cover .version { font-size: 1.2rem; color: #94a3b8; }
+        .cover .date { font-size: 0.9rem; color: #64748b; margin-top: 1rem; }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-admin { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .badge-rrhh { background-color: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+        .badge-supervisor { background-color: #e0e7ff; color: #3730a3; border: 1px solid #818cf8; }
+        .badge-empleado { background-color: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+        .badge-auth { background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+
+        /* Code Blocks */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', monospace;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        .endpoint-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .endpoint-box strong { color: var(--text-main); }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-main);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f1f5f9; }
+
+        /* Lists */
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--secondary); }
+        li { margin-bottom: 0.5rem; }
+
+        /* Workflow Step */
+        .workflow-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .workflow-step .step-num {
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-right: 1rem;
+            margin-top: 0.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navegación -->
+    <nav class="sidebar">
+        <h3>General</h3>
+        <a href="#portada">1. Portada</a>
+        <a href="#arquitectura">2. Arquitectura</a>
+        <a href="#config-postman">3. Configuración Postman</a>
+        <a href="#flujo-auth">4. Flujo de Autenticación</a>
+        <a href="#roles">5. Roles del Sistema</a>
+        
+        <h3>Operaciones GraphQL</h3>
+        <a href="#queries">6. Queries (Consultas)</a>
+        <a href="#mutations">7. Mutations (Modificaciones)</a>
+        
+        <h3>Casos de Uso</h3>
+        <a href="#workflow-rrhh">8. Escenario RRHH Completo</a>
+        <a href="#postman-collection">9. Colección Recomendada</a>
+        
+        <h3>Referencia Técnica</h3>
+        <a href="#errores">10. Manejo de Errores</a>
+        <a href="#modelos">11. Modelos de Datos (Schema)</a>
+        <a href="#qa-checklist">12. Guía Rápida QA</a>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="content">
+
+        <!-- 1. PORTADA -->
+        <section id="portada">
+            <div class="cover">
+                <h1>Sistema de Recursos Humanos (MVP)</h1>
+                <div class="version">API GraphQL + Spring Boot 3.3.x</div>
+                <p style="color: #cbd5e1; max-width: 600px; margin: 1rem auto;">Documentación técnica generada automáticamente a partir del código fuente para validación y testing con Postman. Incluye todos los endpoints, esquemas de seguridad y flujos transaccionales reales.</p>
+                <div class="date">Generado el: <script>document.write(new Date().toLocaleDateString())</script></div>
+            </div>
+        </section>
+
+        <!-- 2. ARQUITECTURA -->
+        <section id="arquitectura">
+            <h2>2. Arquitectura de la API</h2>
+            <p>El backend está construido bajo un enfoque moderno y seguro:</p>
+            <ul>
+                <li><strong>Framework:</strong> Spring Boot 3.3.x con Java 17.</li>
+                <li><strong>API Gateway:</strong> Spring for GraphQL (Reemplazando los controladores REST tradicionales, centralizando en <code>/graphql</code>).</li>
+                <li><strong>Autenticación:</strong> JSON Web Tokens (JJWT 0.12) mediante Bearer Tokens en headers.</li>
+                <li><strong>Base de Datos:</strong> PostgreSQL 16 manejado mediante Spring Data JPA.</li>
+                <li><strong>Migraciones:</strong> Flyway para control de versiones de esquema y carga de datos inicial.</li>
+                <li><strong>Seguridad:</strong> Seguridad a nivel de método con <code>@PreAuthorize</code> basada en la jerarquía de roles (RBAC).</li>
+            </ul>
+        </section>
+
+        <!-- 3. CONFIGURACIÓN POSTMAN -->
+        <section id="config-postman">
+            <h2>3. Configuración inicial de Postman</h2>
+            <div class="endpoint-box">
+                <p><strong>Variables de Entorno Recomendadas en Postman:</strong></p>
+                <ul>
+                    <li><code>{{base_url}}</code> : <code>http://localhost:8080</code></li>
+                    <li><code>{{token}}</code> : <em>(Se llena automáticamente tras el login)</em></li>
+                </ul>
+                
+                <h4 style="margin-top: 1rem;">Endpoints REST (Solo para Auth):</h4>
+                <ul>
+                    <li><strong>Login:</strong> <code>POST {{base_url}}/api/v1/auth/login</code></li>
+                    <li><strong>Refresh Token:</strong> <code>POST {{base_url}}/api/v1/auth/refresh</code></li>
+                </ul>
+
+                <h4 style="margin-top: 1rem;">Endpoint Único GraphQL:</h4>
+                <ul>
+                    <li><strong>GraphQL API:</strong> <code>POST {{base_url}}/graphql</code></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 4. FLUJO DE AUTENTICACIÓN -->
+        <section id="flujo-auth">
+            <h2>4. Flujo de Autenticación</h2>
+            <p>Toda petición a GraphQL (excepto login) requiere autenticación JWT.</p>
+            
+            <div class="workflow-step">
+                <div class="step-num">1</div>
+                <div>
+                    <h4>Realizar Login (REST)</h4>
+                    <p>Endpoint: <code>POST /api/v1/auth/login</code></p>
+                    <pre>{
+    "username": "admin",
+    "password": "password123"
+}</pre>
+                </div>
+            </div>
+
+            <div class="workflow-step">
+                <div class="step-num">2</div>
+                <div>
+                    <h4>Capturar Token</h4>
+                    <p>La respuesta devolverá el token de acceso:</p>
+                    <pre>{
+    "accessToken": "eyJhbGciOiJIUz...",
+    "refreshToken": "eyJhbGciOiJIUz...",
+    "expiresIn": 86400000,
+    "username": "admin",
+    "roles": ["ROLE_ADMIN"]
+}</pre>
+                </div>
+            </div>
+
+            <div class="workflow-step">
+                <div class="step-num">3</div>
+                <div>
+                    <h4>Configurar Authorization Header en Postman</h4>
+                    <p>Ve a la pestaña <strong>Authorization</strong> en tus peticiones de GraphQL, selecciona el tipo <strong>Bearer Token</strong> y pega el <code>accessToken</code> (o usa la variable <code>{{token}}</code>).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. ROLES -->
+        <section id="roles">
+            <h2>5. Roles del Sistema</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>Identificador Interno</th>
+                            <th>Permisos Principales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-admin">Administrador</span></td>
+                            <td><code>ROLE_ADMIN</code></td>
+                            <td>Acceso total. Crear usuarios, asignar roles, desactivar empleados, modificar configuraciones del sistema (IoT).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-rrhh">Recursos Humanos</span></td>
+                            <td><code>ROLE_RRHH</code></td>
+                            <td>Gestión completa de empleados, cargos, departamentos, generación de planillas y aprobación global de ausencias.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-supervisor">Supervisor</span></td>
+                            <td><code>ROLE_SUPERVISOR</code></td>
+                            <td>Aprobar/Rechazar solicitudes de ausencia de los empleados a su cargo.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-empleado">Empleado</span></td>
+                            <td><code>ROLE_EMPLEADO</code></td>
+                            <td>Acceso de lectura a su propia asistencia, creación de solicitudes de ausencia. (Requiere rol básico de Auth para todo request).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 6. QUERIES -->
+        <section id="queries">
+            <h2>6. Queries (Consultas)</h2>
+            <p>Consultas de lectura (equivalente a GET en REST). Utiliza el método <code>POST /graphql</code>.</p>
+
+            <div class="endpoint-box">
+                <h3>usuarios</h3>
+                <p>Lista todos los usuarios del sistema.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-admin">ROLE_ADMIN</span></p>
+                <pre>query {
+  usuarios {
+    id
+    username
+    activo
+    roles {
+      rol { nombre }
+    }
+  }
+}</pre>
+            </div>
+
+            <div class="endpoint-box">
+                <h3>empleados</h3>
+                <p>Lista empleados con paginación y filtros opcionales.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-auth">Autenticado</span></p>
+                <p><strong>Variables JSON:</strong></p>
+                <pre>{ "page": 0, "size": 10, "estado": "ACTIVO", "departamentoId": "1" }</pre>
+                <p><strong>GraphQL:</strong></p>
+                <pre>query GetEmpleados($page: Int, $size: Int, $estado: EstadoEmpleado, $departamentoId: ID) {
+  empleados(page: $page, size: $size, estado: $estado, departamentoId: $departamentoId) {
+    content {
+      id
+      nombreCompleto
+      estado
+      cargo { nombre }
+    }
+    pageInfo { totalElements totalPages }
+  }
+}</pre>
+            </div>
+
+            <div class="endpoint-box">
+                <h3>departamentos y cargos</h3>
+                <p>Obtiene catálogos del sistema.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-auth">Autenticado</span></p>
+                <pre>query {
+  departamentos { id nombre gerente { nombreCompleto } }
+  cargos { id nombre salarioPorHora }
+}</pre>
+            </div>
+
+            <div class="endpoint-box">
+                <h3>registrosAsistencia</h3>
+                <p>Obtiene el historial de asistencia biométrica.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-auth">Autenticado</span></p>
+                <p><strong>Variables JSON:</strong></p>
+                <pre>{ "empleadoId": "1", "page": 0, "size": 20 }</pre>
+                <p><strong>GraphQL:</strong></p>
+                <pre>query GetAsistencia($empleadoId: ID, $page: Int, $size: Int) {
+  registrosAsistencia(empleadoId: $empleadoId, page: $page, size: $size) {
+    content {
+      id
+      empleado { nombreCompleto }
+      horaEntrada
+      horaSalida
+      estado
+    }
+  }
+}</pre>
+            </div>
+            
+            <div class="endpoint-box">
+                <h3>solicitudesAusencia</h3>
+                <p>Consulta solicitudes de permisos/vacaciones.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-auth">Autenticado</span></p>
+                <pre>query {
+  solicitudesAusencia(estado: PENDIENTE) {
+    id
+    empleado { nombreCompleto }
+    tipoAusencia { nombre }
+    fechaInicio
+    fechaFin
+    estado
+  }
+}</pre>
+            </div>
+            
+            <div class="endpoint-box">
+                <h3>preplanillas</h3>
+                <p>Consulta recibos/nóminas cerradas almacenadas referenciando S3.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-auth">Autenticado</span></p>
+                <pre>query {
+  preplanillas(periodo: "2026-04") {
+    id
+    empleado { nombreCompleto }
+    s3KeyUri
+    diasTrabajados
+    horasExtra
+  }
+}</pre>
+            </div>
+
+        </section>
+
+        <!-- 7. MUTATIONS -->
+        <section id="mutations">
+            <h2>7. Mutations (Modificaciones)</h2>
+            <p>Operaciones de escritura (equivalente a POST, PUT, DELETE en REST).</p>
+
+            <div class="endpoint-box">
+                <h3>crearEmpleado</h3>
+                <p>Registra un nuevo empleado en la base de datos.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-admin">ADMIN</span> <span class="badge badge-rrhh">RRHH</span></p>
+                <p><strong>Variables JSON:</strong></p>
+                <pre>{
+  "input": {
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "fechaContratacion": "2026-06-01",
+    "departamentoId": "1",
+    "cargoId": "3",
+    "horaEntrada": "08:00:00",
+    "horaSalida": "17:00:00",
+    "telefono": "70012345",
+    "carnetIdentidad": "1234567"
+  }
+}</pre>
+                <p><strong>GraphQL:</strong></p>
+                <pre>mutation Crear($input: EmpleadoInput!) {
+  crearEmpleado(input: $input) {
+    id
+    nombreCompleto
+    estado
+  }
+}</pre>
+            </div>
+
+            <div class="endpoint-box">
+                <h3>enrolarRostro (IoT)</h3>
+                <p>Registra el hash biométrico del rostro de un empleado capturado por el sensor de portería.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-admin">ADMIN</span> <span class="badge badge-rrhh">RRHH</span></p>
+                <pre>mutation {
+  enrolarRostro(empleadoId: "1", codigoFacial: "FACE_HASH_ABC123") {
+    id
+    fechaRegistro
+  }
+}</pre>
+            </div>
+
+            <div class="endpoint-box">
+                <h3>registrarEntrada / registrarSalida (IoT)</h3>
+                <p>Simula el evento del sensor biométrico capturando un rostro conocido.</p>
+                <p><strong>Permisos:</strong> Ninguno (Público, el IoT device llama este endpoint con su propio mecanismo).</p>
+                <p><strong>Variables JSON:</strong></p>
+                <pre>{
+  "input": {
+    "codigoFacial": "FACE_HASH_ABC123",
+    "ubicacionGps": "10.4806,-66.9036"
+  }
+}</pre>
+                <p><strong>GraphQL:</strong></p>
+                <pre>mutation Entrada($input: RegistroAsistenciaInput!) {
+  registrarEntrada(input: $input) {
+    id
+    horaEntrada
+    estado
+  }
+}</pre>
+            </div>
+
+            <div class="endpoint-box">
+                <h3>crearSolicitudAusencia</h3>
+                <p>El empleado solicita vacaciones, permiso médico, etc.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-auth">Autenticado</span></p>
+                <pre>mutation {
+  crearSolicitudAusencia(input: {
+    empleadoId: "5",
+    tipoAusenciaId: "1",
+    fechaInicio: "2026-07-01",
+    fechaFin: "2026-07-15"
+  }) {
+    id
+    estado
+  }
+}</pre>
+            </div>
+
+            <div class="endpoint-box">
+                <h3>aprobarSolicitudAusencia</h3>
+                <p>Aprobación de la solicitud por parte del gerente/supervisor o RRHH.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-admin">ADMIN</span> <span class="badge badge-rrhh">RRHH</span> <span class="badge badge-supervisor">SUPERVISOR</span></p>
+                <pre>mutation {
+  aprobarSolicitudAusencia(id: "1") {
+    id
+    estado
+    aprobador { username }
+  }
+}</pre>
+            </div>
+
+            <div class="endpoint-box">
+                <h3>generarPreplanilla</h3>
+                <p>Procesa la nómina/recibo de un periodo y teóricamente lo sube a AWS S3.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-admin">ADMIN</span> <span class="badge badge-rrhh">RRHH</span></p>
+                <pre>mutation {
+  generarPreplanilla(empleadoId: "1", periodo: "2026-05") {
+    id
+    s3KeyUri
+    diasTrabajados
+    horasExtra
+  }
+}</pre>
+            </div>
+            
+            <div class="endpoint-box">
+                <h3>asignarRol</h3>
+                <p>Asigna un nuevo rol de seguridad a un usuario.</p>
+                <p><strong>Permisos:</strong> <span class="badge badge-admin">ADMIN</span></p>
+                <pre>mutation {
+  asignarRol(usuarioId: "5", rol: ROLE_SUPERVISOR) {
+    id
+    username
+    roles { rol { nombre } }
+  }
+}</pre>
+            </div>
+
+        </section>
+
+        <!-- 8. ESCENARIOS EMPRESARIALES -->
+        <section id="workflow-rrhh">
+            <h2>8. Escenarios Empresariales: Workflow Completo de RRHH</h2>
+            <p>Guía paso a paso para probar un flujo operativo real desde cero:</p>
+            
+            <ol>
+                <li>
+                    <strong>Autenticación como Admin:</strong> 
+                    Realiza un <code>POST /api/v1/auth/login</code> con <code>admin</code> / <code>password123</code>. Configura el token resultante en tus headers.
+                </li>
+                <li>
+                    <strong>Verificar Departamentos y Cargos:</strong>
+                    Ejecuta la query <code>departamentos</code> y <code>cargos</code> para obtener los IDs disponibles (ej. Departamento 1, Cargo 3).
+                </li>
+                <li>
+                    <strong>Alta de Nuevo Empleado:</strong>
+                    Usa la mutation <code>crearEmpleado</code> pasando el input requerido. Copia el <code>id</code> devuelto.
+                </li>
+                <li>
+                    <strong>Enrolamiento IoT:</strong>
+                    Llama a la mutation <code>enrolarRostro</code> utilizando el ID del empleado recién creado y un hash ficticio (ej. "NUEVO_ROSTRO_XYZ").
+                </li>
+                <li>
+                    <strong>Simular Llegada al Trabajo:</strong>
+                    (Quita el header Authorization si lo deseas). Llama a <code>registrarEntrada</code> con el código facial "NUEVO_ROSTRO_XYZ".
+                </li>
+                <li>
+                    <strong>Simular Salida del Trabajo:</strong>
+                    Llama a <code>registrarSalida</code> con el código facial "NUEVO_ROSTRO_XYZ" al final del turno.
+                </li>
+                <li>
+                    <strong>Cierre de Mes:</strong>
+                    Restaura tu token de Admin. Llama a <code>generarPreplanilla</code> para ese empleado pasando el periodo "2026-06".
+                </li>
+            </ol>
+        </section>
+
+        <!-- 9. POSTMAN COLLECTION -->
+        <section id="postman-collection">
+            <h2>9. Estructura de Colección Postman Recomendada</h2>
+            <p>Organiza tus carpetas en Postman de la siguiente manera para mantener el orden:</p>
+            <ul>
+                <li>📁 <strong>TechVentures RRHH GraphQL</strong>
+                    <ul>
+                        <li>📁 <strong>0. Autenticación</strong> (Login, Refresh)</li>
+                        <li>📁 <strong>1. Catálogos</strong> (Departamentos, Cargos, Tipos Ausencia)</li>
+                        <li>📁 <strong>2. Gestión de Personal</strong> (Empleados, Usuarios, Roles)</li>
+                        <li>📁 <strong>3. IoT & Asistencia</strong> (Enrolamiento, Marcación, Historial)</li>
+                        <li>📁 <strong>4. Solicitudes & Flujos</strong> (Crear, Aprobar, Rechazar)</li>
+                        <li>📁 <strong>5. Planillas & Documentos</strong> (Cierre de periodo)</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 10. ERRORES -->
+        <section id="errores">
+            <h2>10. Manejo de Errores (Exceptions)</h2>
+            <p>El API maneja los errores mediante el <code>GlobalExceptionHandler</code>, retornando un formato estándar. Errores GraphQL retornan en la propiedad <code>errors</code> de la respuesta.</p>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código / Tipo</th>
+                            <th>Motivo</th>
+                            <th>Ejemplo en Proyecto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>401 Unauthorized</code></td>
+                            <td>Falta JWT, JWT expirado, credenciales inválidas.</td>
+                            <td>Fallo en endpoint <code>/login</code> por mala contraseña.</td>
+                        </tr>
+                        <tr>
+                            <td><code>403 Forbidden</code></td>
+                            <td>El rol del usuario no tiene permisos para el endpoint.</td>
+                            <td>Un Empleado intenta llamar a <code>crearEmpleado()</code> (que requiere RRHH o ADMIN).</td>
+                        </tr>
+                        <tr>
+                            <td><code>404 Not Found</code></td>
+                            <td>Entidad solicitada no existe.</td>
+                            <td>Query <code>empleado(id: 999)</code> y lanza <code>ResourceNotFoundException</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>400 / 422 Bad Request</code></td>
+                            <td>Validaciones de negocio fallidas o integridad.</td>
+                            <td>Tratar de <code>aprobarSolicitudAusencia</code> de una solicitud que ya está rechazada. Lanza <code>BusinessRuleException</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 11. MODELOS DE DATOS -->
+        <section id="modelos">
+            <h2>11. Modelos de Datos (Schema Graph)</h2>
+            
+            <h4>Empleado (Objeto Base)</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Campo</th><th>Tipo</th><th>Obligatorio</th><th>Descripción</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id</td><td>ID</td><td>✅</td><td>Identificador único</td></tr>
+                        <tr><td>nombreCompleto</td><td>String</td><td>✅</td><td>Calculado dinámicamente</td></tr>
+                        <tr><td>estado</td><td>EstadoEmpleado</td><td>✅</td><td>ACTIVO / INACTIVO</td></tr>
+                        <tr><td>departamento</td><td>Departamento</td><td>✅</td><td>Relación al área</td></tr>
+                        <tr><td>cargo</td><td>Cargo</td><td>✅</td><td>Relación al rol de nómina</td></tr>
+                        <tr><td>horaEntrada / Salida</td><td>Time</td><td>✅</td><td>Horario esperado (formato HH:mm:ss)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>RegistroAsistencia (Marcaciones)</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Campo</th><th>Tipo</th><th>Obligatorio</th><th>Descripción</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id</td><td>ID</td><td>✅</td><td>PK de la marcación</td></tr>
+                        <tr><td>horaEntrada</td><td>DateTime</td><td>✅</td><td>Timestamp exacto ISO</td></tr>
+                        <tr><td>horaSalida</td><td>DateTime</td><td>❌</td><td>NULL si no ha salido</td></tr>
+                        <tr><td>estado</td><td>EstadoAsistencia</td><td>✅</td><td>REGISTRADO / RETRASO / OBSERVADO</td></tr>
+                        <tr><td>ubicacionGps</td><td>String</td><td>❌</td><td>Lat/Lng capturado por el device</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 12. QA CHECKLIST -->
+        <section id="qa-checklist">
+            <h2>12. Guía Rápida para QA (Checklist)</h2>
+            <div class="endpoint-box">
+                <p>Sigue esta lista para comprobar la robustez y seguridad del API:</p>
+                <ul>
+                    <li><input type="checkbox" disabled> Verificar que cualquier petición a GraphQL sin el token Bearer retorna Error 401.</li>
+                    <li><input type="checkbox" disabled> Loguearse con <code>admin</code> (clave <code>password123</code>) y comprobar que el Token devuelto es un JWT válido.</li>
+                    <li><input type="checkbox" disabled> Ejecutar una Query básica como <code>{ departamentos { id nombre } }</code> y validar estado HTTP 200.</li>
+                    <li><input type="checkbox" disabled> Autenticarse como empleado básico (ej. <code>d.lozano</code>) y tratar de ejecutar <code>crearEmpleado</code>. Validar que lanza Excepción de Acceso Denegado (Forbidden).</li>
+                    <li><input type="checkbox" disabled> Probar registrar entrada (<code>registrarEntrada</code>) con un hash que NO existe. Validar que retorna "Rostro no reconocido".</li>
+                    <li><input type="checkbox" disabled> Loguearse como RRHH (ej. <code>v.mendoza</code>) y aprobar una solicitud PENDIENTE (id 9 o superior según datos de prueba).</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicación Técnica — RRHH Backend</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface-2: #21263a;
+            --border: #2e3451;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #6366f1;
+            --accent-glow: rgba(99,102,241,0.15);
+            --green: #22d3ee;
+            --green-bg: rgba(34,211,238,0.08);
+            --red: #f87171;
+            --red-bg: rgba(248,113,113,0.08);
+            --yellow: #fbbf24;
+            --yellow-bg: rgba(251,191,36,0.08);
+            --purple: #a78bfa;
+            --code-bg: #12151f;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            line-height: 1.75;
+        }
+
+        /* ── SIDEBAR ─────────────────────────────── */
+        .layout { display: flex; min-height: 100vh; }
+
+        nav {
+            width: 270px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 28px 0 40px;
+        }
+
+        .nav-brand {
+            display: flex; align-items: center; gap: 12px;
+            padding: 0 20px 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-brand .logo {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .nav-brand h2 { font-size: 14px; font-weight: 600; color: var(--text); }
+        .nav-brand span { font-size: 11px; color: var(--text-muted); display: block; }
+
+        .nav-group { margin-top: 20px; }
+        .nav-group-label {
+            font-size: 10px; font-weight: 700; letter-spacing: .12em;
+            text-transform: uppercase; color: var(--text-muted);
+            padding: 0 20px 8px;
+        }
+        nav a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13.5px;
+            border-left: 3px solid transparent;
+            transition: all .15s;
+        }
+        nav a:hover, nav a.active {
+            color: var(--text);
+            background: var(--accent-glow);
+            border-left-color: var(--accent);
+        }
+        nav a span.icon { width: 16px; text-align: center; font-size: 14px; }
+
+        /* ── MAIN ────────────────────────────────── */
+        main {
+            margin-left: 270px;
+            flex: 1;
+            padding: 52px 60px;
+            max-width: 1100px;
+        }
+
+        /* ── SECTIONS ────────────────────────────── */
+        section { margin-bottom: 72px; scroll-margin-top: 32px; }
+
+        h1 {
+            font-size: 32px; font-weight: 700; letter-spacing: -.5px;
+            background: linear-gradient(135deg, #fff 40%, var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .subtitle { color: var(--text-muted); font-size: 15px; margin-bottom: 48px; }
+
+        h2 {
+            font-size: 20px; font-weight: 600; color: var(--text);
+            display: flex; align-items: center; gap: 10px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+        }
+        h2 .sec-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; border-radius: 8px;
+            background: var(--accent-glow); border: 1px solid var(--accent);
+            color: var(--accent); font-size: 12px; font-weight: 700;
+        }
+
+        h3 { font-size: 16px; font-weight: 600; color: var(--purple); margin: 28px 0 12px; }
+        h4 { font-size: 14px; font-weight: 600; color: var(--text-muted); margin: 20px 0 10px; letter-spacing: .03em; text-transform: uppercase; font-size: 11px; }
+
+        p { color: var(--text-muted); margin-bottom: 14px; }
+        p strong { color: var(--text); font-weight: 500; }
+
+        /* ── BADGES ──────────────────────────────── */
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600; letter-spacing: .04em;
+        }
+        .badge-query  { background: var(--green-bg);  color: var(--green);  border: 1px solid rgba(34,211,238,.25); }
+        .badge-mut    { background: var(--red-bg);     color: var(--red);    border: 1px solid rgba(248,113,113,.25); }
+        .badge-rest   { background: var(--yellow-bg);  color: var(--yellow); border: 1px solid rgba(251,191,36,.25); }
+        .badge-post   { background: rgba(99,102,241,.1); color: var(--accent); border: 1px solid rgba(99,102,241,.3); }
+        .badge-role   { background: rgba(167,139,250,.1); color: var(--purple); border: 1px solid rgba(167,139,250,.3); font-size: 10px; }
+
+        /* ── CODE BLOCKS ─────────────────────────── */
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.65;
+            color: #cdd6f4;
+            margin: 16px 0;
+        }
+        pre .c   { color: #6c7086; }  /* comment */
+        pre .k   { color: #cba6f7; }  /* keyword */
+        pre .s   { color: #a6e3a1; }  /* string */
+        pre .n   { color: #89dceb; }  /* field name */
+        pre .v   { color: #fab387; }  /* value */
+        pre .p   { color: #89b4fa; }  /* property */
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            color: var(--purple);
+            padding: 2px 7px;
+            border-radius: 5px;
+        }
+
+        /* ── TABLES ──────────────────────────────── */
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px; }
+        thead tr { background: var(--surface-2); }
+        th {
+            text-align: left; padding: 10px 16px;
+            color: var(--text-muted); font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .06em;
+            border-bottom: 1px solid var(--border);
+        }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+        td strong, td code { color: var(--text); }
+        tr:hover td { background: rgba(99,102,241,0.04); }
+
+        /* ── CARDS ───────────────────────────────── */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 20px 0; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color .2s;
+        }
+        .card:hover { border-color: var(--accent); }
+        .card .card-icon { font-size: 24px; margin-bottom: 12px; }
+        .card h4 { text-transform: none; font-size: 14px; color: var(--text); margin: 0 0 6px; letter-spacing: 0; }
+        .card p { font-size: 13px; margin: 0; }
+
+        /* ── FILE TREE ───────────────────────────── */
+        .file-tree {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            line-height: 2;
+        }
+        .ft-dir   { color: var(--accent); }
+        .ft-file  { color: var(--text-muted); }
+        .ft-badge {
+            display: inline-block; margin-left: 8px;
+            padding: 1px 7px; border-radius: 10px;
+            font-size: 10px; font-weight: 600;
+        }
+        .ft-badge.config  { background: rgba(99,102,241,.15);  color: var(--accent); }
+        .ft-badge.model   { background: rgba(167,139,250,.12); color: var(--purple); }
+        .ft-badge.service { background: rgba(34,211,238,.1);   color: var(--green); }
+        .ft-badge.resolver{ background: rgba(251,191,36,.1);   color: var(--yellow); }
+        .ft-badge.sql     { background: rgba(248,113,113,.1);  color: var(--red); }
+
+        /* ── FILE DOCS ───────────────────────────── */
+        .file-doc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 14px;
+        }
+        .file-doc .fd-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .file-doc .fd-path { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+        .file-doc .fd-desc { color: var(--text-muted); font-size: 13.5px; }
+        .file-doc .fd-desc strong { color: var(--text); }
+
+        /* ── STEPS ───────────────────────────────── */
+        .steps { list-style: none; counter-reset: step; }
+        .steps li {
+            counter-increment: step;
+            display: flex; gap: 16px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+        .steps li::before {
+            content: counter(step);
+            min-width: 28px; height: 28px;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+        }
+        .steps li div { color: var(--text-muted); }
+        .steps li div strong { color: var(--text); display: block; margin-bottom: 4px; }
+
+        /* ── FLOW DIAGRAM ────────────────────────── */
+        .flow {
+            display: flex; flex-wrap: wrap; gap: 0; align-items: center;
+            margin: 20px 0;
+        }
+        .flow-step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 13px;
+            text-align: center;
+            min-width: 120px;
+        }
+        .flow-step .fsi { font-size: 20px; display: block; margin-bottom: 4px; }
+        .flow-step span { color: var(--text-muted); }
+        .flow-arrow { color: var(--border); font-size: 22px; padding: 0 8px; }
+
+        /* ── CALLOUT ─────────────────────────────── */
+        .callout {
+            display: flex; gap: 14px;
+            border-radius: 10px; padding: 16px 20px;
+            margin: 16px 0; font-size: 13.5px;
+        }
+        .callout-info  { background: rgba(99,102,241,.08);  border: 1px solid rgba(99,102,241,.25); }
+        .callout-warn  { background: rgba(251,191,36,.07);  border: 1px solid rgba(251,191,36,.25); color: var(--yellow); }
+        .callout-tip   { background: rgba(34,211,238,.07);  border: 1px solid rgba(34,211,238,.25); }
+        .callout .co-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+        .callout .co-body { color: var(--text-muted); }
+        .callout .co-body strong { color: var(--text); }
+
+        /* ── ENDPOINT BLOCK ──────────────────────── */
+        .endpoint-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .endpoint-block .ep-header {
+            background: var(--surface-2);
+            padding: 14px 20px;
+            display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .endpoint-block .ep-title { font-weight: 600; font-size: 14px; }
+        .endpoint-block .ep-desc { color: var(--text-muted); font-size: 12.5px; }
+        .endpoint-block .ep-body { padding: 18px 20px; }
+        .ep-tabs { display: flex; gap: 12px; margin-bottom: 12px; }
+        .ep-tab-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: .06em; }
+
+        /* ── MISC ────────────────────────────────── */
+        hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+        ul { color: var(--text-muted); padding-left: 20px; }
+        ul li { margin-bottom: 6px; font-size: 13.5px; }
+        ul li strong { color: var(--text); }
+
+        .tag-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .tag {
+            background: var(--surface-2); border: 1px solid var(--border);
+            border-radius: 6px; padding: 4px 12px;
+            font-size: 12.5px; color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- ── SIDEBAR ── -->
+    <nav>
+        <div class="nav-brand">
+            <div class="logo">🏢</div>
+            <div>
+                <h2>RRHH Backend</h2>
+                <span>Spring Boot 3 · GraphQL</span>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-label">Visión General</div>
+            <a href="#resumen"><span class="icon">📋</span> Resumen del Proyecto</a>
+            <a href="#flujo"><span class="icon">🔄</span> Flujo de la Aplicación</a>
+            <a href="#arquitectura"><span class="icon">🏗️</span> Arquitectura</a>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-label">API & Endpoints</div>
+            <a href="#auth-endpoints"><span class="icon">🔐</span> Auth — REST</a>
+            <a href="#graphql-queries"><span class="icon">🔵</span> GraphQL — Queries</a>
+            <a href="#graphql-mutations"><span class="icon">🔴</span> GraphQL — Mutations</a>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-label">Postman & Pruebas</div>
+            <a href="#postman-auth"><span class="icon">📬</span> Prueba Auth</a>
+            <a href="#postman-graphql"><span class="icon">📬</span> Prueba GraphQL</a>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-label">Estructura del Proyecto</div>
+            <a href="#estructura-config"><span class="icon">⚙️</span> Config & Seguridad</a>
+            <a href="#estructura-dominio"><span class="icon">📦</span> Módulos de Dominio</a>
+            <a href="#estructura-shared"><span class="icon">🔗</span> Componentes Shared</a>
+            <a href="#estructura-resources"><span class="icon">📁</span> Resources</a>
+        </div>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <main>
+
+        <h1>Documentación Técnica</h1>
+        <p class="subtitle">Explicación detallada del backend RRHH MVP — su arquitectura, API, estructura de archivos y cómo probarlo.</p>
+
+        <!-- ══════════════════════ 1. RESUMEN ══════════════════════ -->
+        <section id="resumen">
+            <h2><span class="sec-num">1</span> Resumen del Proyecto</h2>
+            <p>Este backend es el núcleo de un sistema de <strong>Recursos Humanos (RRHH)</strong> MVP, construido sobre <strong>Spring Boot 3.3</strong>. Expone su API principalmente mediante <strong>GraphQL</strong> (para consultas y mutaciones de datos), complementado con un módulo <strong>REST</strong> exclusivo para autenticación JWT.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h4>Spring Boot 3.3 · Java 17</h4>
+                    <p>Framework principal con configuración por perfiles (dev/prod).</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔷</div>
+                    <h4>GraphQL (Spring for GraphQL)</h4>
+                    <p>API principal. Un único endpoint <code>/graphql</code> para leer y modificar todos los datos.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🐘</div>
+                    <h4>PostgreSQL + Flyway</h4>
+                    <p>Base de datos relacional. Las migraciones son versionadas automáticamente por Flyway.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔑</div>
+                    <h4>Spring Security + JWT</h4>
+                    <p>Autenticación Stateless. Cada request a GraphQL requiere un Bearer Token.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">☁️</div>
+                    <h4>AWS S3</h4>
+                    <p>Almacenamiento en la nube para los reportes de preplanilla generados.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔔</div>
+                    <h4>Firebase FCM</h4>
+                    <p>Envío de notificaciones push a dispositivos móviles de los empleados.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════ 2. FLUJO ══════════════════════ -->
+        <section id="flujo">
+            <h2><span class="sec-num">2</span> Flujo de la Aplicación</h2>
+
+            <p>El ciclo de vida de una petición sigue este orden estricto:</p>
+
+            <div class="flow">
+                <div class="flow-step"><span class="fsi">📱</span><span>Cliente (Postman / App)</span></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step"><span class="fsi">🛡️</span><span>Security Filter (JWT)</span></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step"><span class="fsi">🔷</span><span>Resolver (GraphQL)</span></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step"><span class="fsi">⚙️</span><span>Service (Lógica)</span></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step"><span class="fsi">🗄️</span><span>Repository (JPA/DB)</span></div>
+            </div>
+
+            <h3>Flujo de Autenticación</h3>
+            <ol class="steps">
+                <li><div><strong>Login (POST /api/v1/auth/login)</strong> El cliente envía <code>username</code> y <code>password</code>. El filtro de seguridad deja pasar esta ruta sin token.</div></li>
+                <li><div><strong>Generación de tokens</strong> <code>AuthService</code> valida las credenciales con <code>AuthenticationManager</code>. Si son correctas, <code>JwtService</code> genera un <strong>Access Token</strong> (24h) y un <strong>Refresh Token</strong> (7 días).</div></li>
+                <li><div><strong>Petición autenticada</strong> El cliente incluye el Access Token en el header <code>Authorization: Bearer &lt;token&gt;</code> en todas las peticiones a <code>/graphql</code>.</div></li>
+                <li><div><strong>Validación del filtro</strong> El filtro JWT intercepta cada petición, valida el token y carga el usuario en el contexto de seguridad de Spring.</div></li>
+                <li><div><strong>Autorización por Rol</strong> El Resolver verifica con <code>@PreAuthorize</code> si el usuario tiene el rol requerido (ADMIN, RRHH, SUPERVISOR, EMPLEADO) antes de ejecutar la lógica.</div></li>
+            </ol>
+
+            <h3>Flujo de Asistencia (IoT)</h3>
+            <ol class="steps">
+                <li><div><strong>Enrolar Rostro</strong> Un admin usa la mutation <code>enrolarRostro</code> para registrar el <code>codigoFacial</code> de un empleado.</div></li>
+                <li><div><strong>Cambiar estado del sistema</strong> Con <code>cambiarEstadoSistema(estado: LECTURA)</code> se pone el dispositivo IoT en modo de marcación.</div></li>
+                <li><div><strong>Marcación de Entrada</strong> El dispositivo IoT llama a <code>registrarEntrada</code> enviando el <code>codigoFacial</code> detectado y las coordenadas GPS.</div></li>
+                <li><div><strong>Marcación de Salida</strong> Al final del turno, el mismo dispositivo llama a <code>registrarSalida</code> con el código facial.</div></li>
+                <li><div><strong>Generación de Preplanilla</strong> Al cierre del período, un admin llama a <code>generarPreplanilla</code>, que calcula días trabajados, faltas, retrasos y genera el reporte en AWS S3.</div></li>
+            </ol>
+        </section>
+
+        <!-- ══════════════════════ 3. AUTH REST ══════════════════════ -->
+        <section id="auth-endpoints">
+            <h2><span class="sec-num">3</span> Endpoints REST — Autenticación</h2>
+            <p>El único módulo REST del sistema. Base URL: <code>http://localhost:8080/api/v1/auth</code></p>
+
+            <div class="endpoint-block">
+                <div class="ep-header">
+                    <span class="badge badge-post">POST</span>
+                    <code>/api/v1/auth/login</code>
+                    <span class="badge badge-role">🔓 Público</span>
+                    <div class="ep-desc" style="margin-left:auto;">Inicia sesión y obtiene tokens JWT</div>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-tab-label">Request Body (JSON)</div>
+                    <pre>{ <span class="n">"username"</span>: <span class="s">"admin"</span>, <span class="n">"password"</span>: <span class="s">"password123"</span> }</pre>
+                    <div class="ep-tab-label">Response</div>
+                    <pre>{
+  <span class="n">"accessToken"</span>:  <span class="s">"eyJhbGc..."</span>,
+  <span class="n">"refreshToken"</span>: <span class="s">"eyJhbGc..."</span>,
+  <span class="n">"expiresIn"</span>:    <span class="v">86400</span>,
+  <span class="n">"username"</span>:     <span class="s">"admin"</span>,
+  <span class="n">"roles"</span>:        <span class="s">["ROLE_ADMIN"]</span>
+}</pre>
+                </div>
+            </div>
+
+            <div class="endpoint-block">
+                <div class="ep-header">
+                    <span class="badge badge-post">POST</span>
+                    <code>/api/v1/auth/register</code>
+                    <span class="badge badge-role">🔒 Solo ADMIN</span>
+                    <div class="ep-desc" style="margin-left:auto;">Crea un nuevo usuario del sistema</div>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-tab-label">Request Body (JSON)</div>
+                    <pre>{
+  <span class="n">"username"</span>:   <span class="s">"jperez"</span>,
+  <span class="n">"password"</span>:   <span class="s">"pass1234"</span>,
+  <span class="n">"empleadoId"</span>: <span class="v">5</span>,        <span class="c">// Opcional: vincula al empleado</span>
+  <span class="n">"rol"</span>:        <span class="s">"ROLE_EMPLEADO"</span>
+}</pre>
+                </div>
+            </div>
+
+            <div class="endpoint-block">
+                <div class="ep-header">
+                    <span class="badge badge-post">POST</span>
+                    <code>/api/v1/auth/refresh</code>
+                    <span class="badge badge-role">🔓 Público</span>
+                    <div class="ep-desc" style="margin-left:auto;">Renueva el Access Token usando el Refresh Token</div>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-tab-label">Request Header</div>
+                    <pre>X-Refresh-Token: eyJhbGciOiJIUzI1NiJ9...</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════ 4. QUERIES ══════════════════════ -->
+        <section id="graphql-queries">
+            <h2><span class="sec-num">4</span> GraphQL — Queries (Consultas)</h2>
+            <p>Endpoint único: <code>POST http://localhost:8080/graphql</code>. Todas requieren header <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+
+            <table>
+                <thead><tr><th>Query</th><th>Parámetros</th><th>Descripción</th><th>Rol</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>empleados</code></td>
+                        <td><code>page, size, estado, departamentoId</code></td>
+                        <td>Lista paginada de empleados con filtros</td>
+                        <td><span class="badge badge-role">AUTENTICADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>empleado(id)</code></td>
+                        <td><code>id: ID!</code></td>
+                        <td>Detalle de un empleado específico</td>
+                        <td><span class="badge badge-role">AUTENTICADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>departamentos</code></td>
+                        <td>—</td>
+                        <td>Lista todos los departamentos</td>
+                        <td><span class="badge badge-role">AUTENTICADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>cargos</code></td>
+                        <td>—</td>
+                        <td>Lista todos los cargos con su salario por hora</td>
+                        <td><span class="badge badge-role">AUTENTICADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>registrosAsistencia</code></td>
+                        <td><code>empleadoId, desde, hasta, page, size</code></td>
+                        <td>Historial paginado de marcaciones de entrada/salida</td>
+                        <td><span class="badge badge-role">AUTENTICADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>solicitudesAusencia</code></td>
+                        <td><code>estado, empleadoId</code></td>
+                        <td>Consulta solicitudes de permiso o vacaciones</td>
+                        <td><span class="badge badge-role">AUTENTICADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>preplanillas</code></td>
+                        <td><code>empleadoId, periodo</code></td>
+                        <td>Listado de cálculos de nómina generados</td>
+                        <td><span class="badge badge-role">AUTENTICADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>sistemaConfigEstado</code></td>
+                        <td>—</td>
+                        <td>Estado actual del sistema IoT (EMPAREJAR / LECTURA)</td>
+                        <td><span class="badge badge-role">AUTENTICADO</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ══════════════════════ 5. MUTATIONS ══════════════════════ -->
+        <section id="graphql-mutations">
+            <h2><span class="sec-num">5</span> GraphQL — Mutations (Acciones)</h2>
+            <table>
+                <thead><tr><th>Mutation</th><th>Rol Mínimo</th><th>Descripción</th></tr></thead>
+                <tbody>
+                    <tr><td><code>crearEmpleado(input)</code></td><td><span class="badge badge-role">RRHH</span></td><td>Registra un nuevo empleado</td></tr>
+                    <tr><td><code>actualizarEmpleado(id, input)</code></td><td><span class="badge badge-role">RRHH</span></td><td>Actualiza datos de un empleado</td></tr>
+                    <tr><td><code>desactivarEmpleado(id)</code></td><td><span class="badge badge-role">ADMIN</span></td><td>Desactiva al empleado (baja lógica)</td></tr>
+                    <tr><td><code>crearDepartamento(nombre)</code></td><td><span class="badge badge-role">ADMIN</span></td><td>Crea un departamento nuevo</td></tr>
+                    <tr><td><code>asignarRol(usuarioId, rol)</code></td><td><span class="badge badge-role">ADMIN</span></td><td>Cambia el rol de un usuario</td></tr>
+                    <tr><td><code>cambiarEstadoSistema(estado)</code></td><td><span class="badge badge-role">ADMIN</span></td><td>Cambia modo del sistema IoT</td></tr>
+                    <tr><td><code>enrolarRostro(empleadoId, codigoFacial)</code></td><td><span class="badge badge-role">ADMIN</span></td><td>Registra biometría facial de un empleado</td></tr>
+                    <tr><td><code>registrarEntrada(input)</code></td><td><span class="badge badge-role">AUTENTICADO</span></td><td>Marcación de entrada vía código facial</td></tr>
+                    <tr><td><code>registrarSalida(codigoFacial)</code></td><td><span class="badge badge-role">AUTENTICADO</span></td><td>Marcación de salida vía código facial</td></tr>
+                    <tr><td><code>crearSolicitudAusencia(input)</code></td><td><span class="badge badge-role">AUTENTICADO</span></td><td>Empleado solicita permiso o vacación</td></tr>
+                    <tr><td><code>aprobarSolicitudAusencia(id)</code></td><td><span class="badge badge-role">SUPERVISOR</span></td><td>Aprueba una solicitud pendiente</td></tr>
+                    <tr><td><code>rechazarSolicitudAusencia(id)</code></td><td><span class="badge badge-role">SUPERVISOR</span></td><td>Rechaza una solicitud pendiente</td></tr>
+                    <tr><td><code>generarPreplanilla(empleadoId, periodo)</code></td><td><span class="badge badge-role">RRHH</span></td><td>Procesa asistencia y genera nómina en S3</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ══════════════════════ 6. POSTMAN AUTH ══════════════════════ -->
+        <section id="postman-auth">
+            <h2><span class="sec-num">6</span> Cómo Probar con Postman — Auth</h2>
+
+            <ol class="steps">
+                <li><div><strong>Crear una nueva Colección</strong> En Postman, click en "New Collection" y nómbrala <em>RRHH Backend</em>.</div></li>
+                <li><div>
+                    <strong>Petición de Login</strong>
+                    <ul style="margin-top:8px;">
+                        <li>Método: <strong>POST</strong></li>
+                        <li>URL: <code>http://localhost:8080/api/v1/auth/login</code></li>
+                        <li>Body → raw → JSON:</li>
+                    </ul>
+                    <pre>{ "username": "admin", "password": "password123" }</pre>
+                    <p>Guarda el valor de <code>accessToken</code> de la respuesta.</p>
+                </div></li>
+                <li><div>
+                    <strong>Configurar el token en la colección</strong> Ve a la pestaña <em>Authorization</em> de la colección, selecciona <strong>Bearer Token</strong> y pega el token obtenido. Todas las sub-peticiones de la colección lo heredarán automáticamente.
+                </div></li>
+            </ol>
+        </section>
+
+        <!-- ══════════════════════ 7. POSTMAN GRAPHQL ══════════════════════ -->
+        <section id="postman-graphql">
+            <h2><span class="sec-num">7</span> Cómo Probar con Postman — GraphQL</h2>
+
+            <div class="callout callout-info">
+                <span class="co-icon">💡</span>
+                <div class="co-body">Postman tiene soporte nativo para GraphQL. Crea una petición de tipo <strong>POST</strong> y en la pestaña <strong>Body</strong> selecciona <strong>GraphQL</strong>. Postman cargará el schema automáticamente si le das la URL del servidor.</div>
+            </div>
+
+            <h3>Ejemplo 1 — Query: Listar empleados</h3>
+            <div class="ep-tab-label">URL: POST http://localhost:8080/graphql</div>
+            <div class="ep-tab-label" style="margin-top:10px;">Body → GraphQL</div>
+            <pre>query ListarEmpleados {
+  empleados(page: 0, size: 10) {
+    content {
+      id
+      nombre
+      apellido
+      cargo { nombre salarioPorHora }
+      departamento { nombre }
+      estado
+    }
+    pageInfo {
+      totalElements
+      totalPages
+      hasNext
+    }
+  }
+}</pre>
+
+            <h3>Ejemplo 2 — Mutation: Crear empleado</h3>
+            <pre>mutation CrearEmpleado {
+  crearEmpleado(input: {
+    nombre:           <span class="s">"Juan"</span>
+    apellido:         <span class="s">"Pérez"</span>
+    fechaContratacion: <span class="s">"2025-01-15"</span>
+    departamentoId:   <span class="v">1</span>
+    cargoId:          <span class="v">2</span>
+    horaEntrada:      <span class="s">"08:00:00"</span>
+    horaSalida:       <span class="s">"17:00:00"</span>
+    carnetIdentidad:  <span class="s">"0801-1990-12345"</span>
+  }) {
+    id
+    nombre
+    apellido
+    cargo { nombre }
+  }
+}</pre>
+
+            <h3>Ejemplo 3 — Mutation: Registrar entrada (IoT)</h3>
+            <pre>mutation RegistrarEntrada {
+  registrarEntrada(input: {
+    codigoFacial: <span class="s">"FACE-001-ABC"</span>
+    ubicacionGps: <span class="s">"14.0818,-87.2068"</span>
+  }) {
+    id
+    horaEntrada
+    estado
+    empleado { nombre apellido }
+  }
+}</pre>
+
+            <h3>Ejemplo 4 — Mutation: Generar Preplanilla</h3>
+            <pre>mutation GenerarPreplanilla {
+  generarPreplanilla(
+    empleadoId: <span class="v">3</span>
+    periodo:    <span class="s">"2025-05"</span>
+  ) {
+    id
+    periodo
+    diasTrabajados
+    horasExtra
+    faltas
+    retrasos
+    s3KeyUri
+  }
+}</pre>
+            <div class="callout callout-warn">
+                <span class="co-icon">⚠️</span>
+                <div class="co-body">Si en la respuesta aparece un objeto <code>errors</code>, el tipo de error (<code>FORBIDDEN</code>, <code>NOT_FOUND</code>, <code>BAD_REQUEST</code>) estará en <code>extensions.classification</code>. GraphQL siempre retorna HTTP 200; los errores van dentro del JSON de respuesta.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════ 8. CONFIG ══════════════════════ -->
+        <section id="estructura-config">
+            <h2><span class="sec-num">8</span> Estructura: Config & Seguridad</h2>
+            <p>Todos los archivos de configuración viven en <code>src/main/java/com/example/rrhh/config/</code>.</p>
+
+            <div class="file-doc">
+                <div class="fd-header">
+                    <span>⚙️</span>
+                    <code class="fd-path">config/security/SecurityConfig.java</code>
+                    <span class="badge badge-role">Config</span>
+                </div>
+                <p class="fd-desc">Define las <strong>reglas de seguridad HTTP</strong>. Especifica qué rutas son públicas (<code>/api/v1/auth/**</code>) y cuáles requieren autenticación (<code>/graphql</code>). Registra el filtro JWT y deshabilita CSRF (ya que el sistema es stateless). También configura el <code>AuthenticationManager</code> y el <code>PasswordEncoder</code> (BCrypt).</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header">
+                    <span>🔑</span>
+                    <code class="fd-path">config/security/JwtAuthFilter.java</code>
+                    <span class="badge badge-role">Filtro</span>
+                </div>
+                <p class="fd-desc">Intercepta <strong>cada request entrante</strong>. Extrae el Bearer Token del header <code>Authorization</code>, lo valida usando <code>JwtService</code>, y si es válido carga al usuario en el <code>SecurityContextHolder</code> de Spring para que los <code>@PreAuthorize</code> funcionen correctamente.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header">
+                    <span>🔐</span>
+                    <code class="fd-path">config/security/JwtService.java</code>
+                    <span class="badge badge-role">Servicio</span>
+                </div>
+                <p class="fd-desc">Encapsula toda la <strong>lógica de JWT</strong>: generación de Access Tokens (usando la clave secreta del <code>.env</code>), generación de Refresh Tokens, extracción de claims (username, roles), y validación de expiración. Usa la librería <code>jjwt</code>.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header">
+                    <span>⚙️</span>
+                    <code class="fd-path">config/graphql/GraphQLScalarConfig.java</code>
+                    <span class="badge badge-role">Config</span>
+                </div>
+                <p class="fd-desc">Registra los <strong>escalares personalizados</strong> de GraphQL: <code>Date</code>, <code>DateTime</code>, <code>Time</code> y <code>BigDecimal</code>. Sin esta configuración, el schema fallaría al intentar usar esos tipos. Usa la librería <code>graphql-java-extended-scalars</code>.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header">
+                    <span>⚙️</span>
+                    <code class="fd-path">config/cors/CorsConfig.java</code>
+                    <span class="badge badge-role">Config</span>
+                </div>
+                <p class="fd-desc">Configura los orígenes permitidos para peticiones Cross-Origin. Lee los dominios permitidos desde la variable de entorno <code>CORS_ALLOWED_ORIGINS</code> del <code>.env</code>, permitiendo que el frontend (ej. Angular en <code>localhost:4200</code>) consuma la API.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header">
+                    <span>☁️</span>
+                    <code class="fd-path">config/AwsConfig.java</code>
+                    <span class="badge badge-role">Config</span>
+                </div>
+                <p class="fd-desc">Crea el bean del cliente de <strong>AWS S3</strong> usando las credenciales del <code>.env</code>. Si <code>AWS_ENABLED=false</code>, esta configuración no activa el cliente S3, por lo que no se necesitan credenciales reales para correr en local.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header">
+                    <span>🔔</span>
+                    <code class="fd-path">config/FirebaseConfig.java</code>
+                    <span class="badge badge-role">Config</span>
+                </div>
+                <p class="fd-desc">Inicializa el SDK de <strong>Firebase Admin</strong> cargando las credenciales desde el archivo JSON apuntado por <code>FCM_CREDENTIALS_PATH</code>. Si <code>FCM_ENABLED=false</code>, la inicialización es omitida, permitiendo correr sin credenciales Firebase en desarrollo.</p>
+            </div>
+        </section>
+
+        <!-- ══════════════════════ 9. DOMINIO ══════════════════════ -->
+        <section id="estructura-dominio">
+            <h2><span class="sec-num">9</span> Estructura: Módulos de Dominio</h2>
+            <p>El dominio de negocio sigue un patrón consistente. Cada módulo contiene: <strong>Entity</strong> → <strong>Repository</strong> → <strong>Service</strong> → <strong>Resolver</strong>.</p>
+
+            <h3>🔐 Módulo: usuario/</h3>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">usuario/Usuario.java</code><span class="badge badge-role">Entity (JPA)</span></div>
+                <p class="fd-desc">Entidad JPA que implementa <code>UserDetails</code> de Spring Security. Almacena <strong>username</strong>, contraseña encriptada (BCrypt), estado activo/inactivo y la relación con <code>Empleado</code>. Sus roles se cargan desde la tabla intermedia <code>UsuarioRol</code>.</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">usuario/auth/AuthController.java</code><span class="badge badge-role">REST Controller</span></div>
+                <p class="fd-desc">El <strong>único controlador REST</strong> del sistema. Expone los endpoints de <code>/login</code>, <code>/register</code> y <code>/refresh</code>. Delega completamente la lógica al <code>AuthService</code>.</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">usuario/UsuarioResolver.java</code><span class="badge badge-role">GraphQL Resolver</span></div>
+                <p class="fd-desc">Expone las queries <code>usuarios</code> y <code>usuario(id)</code> en GraphQL. También contiene mutations de gestión de cuentas como <code>activarUsuario</code>, <code>desactivarUsuario</code> y <code>asignarRol</code>.</p>
+            </div>
+
+            <h3>👤 Módulo: proyecto/empleado/</h3>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">empleado/EmpleadoResolver.java</code><span class="badge badge-role">GraphQL Resolver</span></div>
+                <p class="fd-desc">Implementa paginación (<code>EmpleadoPage</code>) y protección por rol en cada operación. Utiliza <strong><code>@BatchMapping</code></strong> para resolver el campo <code>usuario</code> de todos los empleados en <strong>una sola consulta SQL</strong>, evitando el problema N+1 de queries.</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">empleado/EmpleadoService.java</code><span class="badge badge-role">Service</span></div>
+                <p class="fd-desc">Contiene la lógica de negocio: validaciones al crear/actualizar un empleado (ej. que el supervisor exista y sea de otro departamento), y la construcción de la entidad antes de persistirla.</p>
+            </div>
+
+            <h3>🏢 Módulos: departamento/ y cargo/</h3>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">departamento/DepartamentoResolver.java &amp; cargo/CargoResolver.java</code></div>
+                <p class="fd-desc">Catálogos de la empresa. Exponen los datos de departamentos (con su gerente) y cargos (con su salario base por hora) a través de queries GraphQL. Son la base para crear empleados correctamente.</p>
+            </div>
+
+            <h3>📅 Módulos: asistencia/ y ausencia/</h3>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">reconocimientofacial/ReconocimientoFacialResolver.java</code></div>
+                <p class="fd-desc">Maneja el registro biométrico. La mutation <code>enrolarRostro</code> vincula un <code>codigoFacial</code> (string generado por el hardware IoT) con un empleado. Este código es la clave de identificación para las marcaciones posteriores.</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">sistemaconfig/SistemaConfigResolver.java</code></div>
+                <p class="fd-desc">Controla el <strong>estado del dispositivo IoT</strong>. El enum <code>EstadoSistema</code> (EMPAREJAR, EMPAREJADO, LECTURA, REGISTRADO) determina si el hardware está en modo de enrolamiento de nuevos rostros o en modo de marcación de asistencia.</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">ausencia/solicitud/SolicitudAusenciaResolver.java</code></div>
+                <p class="fd-desc">Gestiona el flujo completo de ausencias: creación por parte del empleado, aprobación o rechazo por un supervisor. Cambia el campo <code>estado</code> entre <code>PENDIENTE</code>, <code>APROBADA</code> y <code>RECHAZADA</code>.</p>
+            </div>
+
+            <h3>💰 Módulo: preplanilla/</h3>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">preplanilla/PreplanillaService.java</code><span class="badge badge-role">Servicio Central</span></div>
+                <p class="fd-desc">El servicio de mayor peso del sistema. Al ejecutar <code>generarPreplanilla</code>, consulta todos los <code>RegistroAsistencia</code> del empleado en el período indicado, calcula <strong>días trabajados, faltas, retrasos y horas extra</strong>, construye la entidad <code>Preplanilla</code> y la persiste.</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">preplanilla/S3Service.java</code></div>
+                <p class="fd-desc">Se encarga de subir el reporte de preplanilla generado al bucket de <strong>AWS S3</strong>. Retorna la URI (llave S3) del archivo, que queda guardada en el campo <code>s3KeyUri</code> de la preplanilla. Si AWS está deshabilitado en el <code>.env</code>, esta operación es omitida.</p>
+            </div>
+
+            <h3>🔔 Módulo: notificacion/ y tokenpush/</h3>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">notificacion/FcmService.java &amp; tokenpush/TokenPushResolver.java</code></div>
+                <p class="fd-desc"><code>TokenPushResolver</code> permite a las apps móviles registrar y revocar sus tokens FCM de Firebase. <code>FcmService</code> usa esos tokens para enviar notificaciones push cuando ocurren eventos relevantes (aprobación de ausencias, etc.).</p>
+            </div>
+
+            <h3>⏰ Módulo: scheduler/</h3>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">scheduler/SchedulerService.java</code><span class="badge badge-role">Tarea Programada</span></div>
+                <p class="fd-desc">Contiene tareas automáticas que Spring ejecuta de forma programada (usando <code>@Scheduled</code>). Actualmente maneja la lógica de cierre de marcaciones diarias u otras tareas periódicas del sistema.</p>
+            </div>
+        </section>
+
+        <!-- ══════════════════════ 10. SHARED ══════════════════════ -->
+        <section id="estructura-shared">
+            <h2><span class="sec-num">10</span> Estructura: Componentes Shared</h2>
+            <p>Componentes reutilizables que sirven a todos los módulos, ubicados en <code>shared/exception/</code>.</p>
+
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">shared/exception/GlobalExceptionHandler.java</code></div>
+                <p class="fd-desc">Contiene DOS manejadores de errores en un solo archivo:
+                <br>• <strong>GlobalExceptionHandler</strong> (<code>@RestControllerAdvice</code>): Captura errores en los endpoints REST (/api/v1/auth) y los transforma en respuestas HTTP estándar con <code>ProblemDetail</code> (RFC 7807).
+                <br>• <strong>GraphQLExceptionResolver</strong>: Captura errores dentro de los resolvers GraphQL y los transforma en el formato de error estándar de GraphQL (<code>{ errors: [{ message, extensions }] }</code>), mapeando cada tipo de excepción a su código semántico correcto (<code>NOT_FOUND</code>, <code>FORBIDDEN</code>, etc.).</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">shared/exception/ResourceNotFoundException.java</code></div>
+                <p class="fd-desc">Excepción de negocio lanzada cuando se busca un recurso por ID y no existe (ej. empleado con ID 999). Se traduce a un error <code>NOT_FOUND</code> en la respuesta.</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">shared/exception/BusinessException.java</code></div>
+                <p class="fd-desc">Excepción de negocio para reglas de validación semántica (ej. "El username ya está en uso", "El empleado ya tiene usuario"). Se traduce a error <code>BAD_REQUEST</code> o <code>422 UNPROCESSABLE_ENTITY</code>.</p>
+            </div>
+        </section>
+
+        <!-- ══════════════════════ 11. RESOURCES ══════════════════════ -->
+        <section id="estructura-resources">
+            <h2><span class="sec-num">11</span> Estructura: Resources</h2>
+
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">resources/application.yml</code><span class="badge badge-role">Config Base</span></div>
+                <p class="fd-desc">Configuración <strong>común a todos los entornos</strong>. Define la cadena de conexión a la base de datos (leyendo variables del <code>.env</code>), la configuración de Flyway, JPA/Hibernate, el pool de conexiones Hikari, y todos los parámetros de la app (JWT, CORS, AWS, FCM). <strong>No contiene valores hardcoded</strong>; todo viene de variables de entorno.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">resources/application-dev.yml</code><span class="badge badge-role">Perfil DEV</span></div>
+                <p class="fd-desc">Sobreescribe la configuración base únicamente para <strong>desarrollo local</strong>. Activa <code>show-sql: true</code> para ver las queries SQL en consola, habilita la interfaz de GraphiQL, y sube el nivel de logs a <code>DEBUG</code> y <code>TRACE</code> para facilitar la depuración.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">resources/application-prod.yml</code><span class="badge badge-role">Perfil PROD</span></div>
+                <p class="fd-desc">Sobreescribe la configuración base para <strong>producción</strong>. Deshabilita el SQL en consola y GraphiQL por seguridad, aumenta el pool de conexiones para mayor rendimiento y establece todos los logs en <code>WARN</code> para evitar exceso de registros.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">resources/graphql/schema.graphqls</code><span class="badge badge-role">Contrato GraphQL</span></div>
+                <p class="fd-desc">El <strong>contrato completo de la API GraphQL</strong>. Define todos los tipos (<code>Empleado</code>, <code>Preplanilla</code>, etc.), enums, inputs, queries y mutations. Este archivo es la fuente de verdad: si un campo no está aquí, no existe en la API. Los <code>Resolver</code> de Java deben implementar exactamente lo que este schema declare.</p>
+            </div>
+
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">resources/db/migration/V1__create_usuario_tables.sql</code><span class="badge badge-role">Migración SQL</span></div>
+                <p class="fd-desc">Primera migración de Flyway. Crea las tablas del módulo de seguridad: <code>usuarios</code>, <code>roles</code> y <code>usuario_roles</code>. Flyway la ejecuta automáticamente al primer arranque si no ha sido aplicada antes.</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">resources/db/migration/V2__create_proyecto_tables.sql</code><span class="badge badge-role">Migración SQL</span></div>
+                <p class="fd-desc">Segunda migración. Crea todas las tablas del dominio de RRHH: <code>departamentos</code>, <code>cargos</code>, <code>empleados</code>, <code>registro_asistencia</code>, <code>solicitudes_ausencia</code>, <code>preplanillas</code>, etc. con sus relaciones (Foreign Keys).</p>
+            </div>
+            <div class="file-doc">
+                <div class="fd-header"><code class="fd-path">resources/db/migration/V3__insert_seed_data.sql</code><span class="badge badge-role">Migración SQL</span></div>
+                <p class="fd-desc">Datos iniciales del sistema. Inserta los 4 roles fijos, los tipos de ausencia base, el usuario <strong>admin</strong> inicial (contraseña: <code>password123</code>), y la configuración inicial del sistema IoT en estado <code>REGISTRADO</code>. Solo se ejecuta una vez.</p>
+            </div>
+
+            <div class="callout callout-tip">
+                <span class="co-icon">✅</span>
+                <div class="co-body"><strong>Credenciales iniciales del sistema:</strong><br>Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>password123</code><br>Estas credenciales están insertadas por la migración V3 y son el punto de entrada para crear todos los demás recursos.</div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>
