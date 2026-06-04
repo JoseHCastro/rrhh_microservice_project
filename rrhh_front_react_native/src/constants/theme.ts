@@ -7,20 +7,54 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
+export const Palette = {
+  primary: {
+    100: '#E8F2FF',
+    200: '#A1CEFF',
+    300: '#13ABFF',
+    400: '#0284C7', // Base
+    500: '#015F91',
+    600: '#003C5F',
+    700: '#001D30',
+  },
+  complementary: {
+    100: '#FFDCD7',
+    200: '#FFA495',
+    300: '#FF6229',
+    400: '#C74502', // Base
+    500: '#8D2E01',
+    600: '#571900',
+    700: '#260700',
+  },
+  gray: {
+    100: '#F0F1F1',
+    200: '#C7CACD',
+    300: '#A0A3A7',
+    400: '#7B7E81',
+    500: '#585B5D',
+    600: '#38393B',
+    700: '#1A1B1C',
+  },
+} as const;
+
 export const Colors = {
   light: {
-    text: '#000000',
+    text: Palette.gray[700],
     background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    backgroundElement: Palette.gray[100],
+    backgroundSelected: Palette.gray[200],
+    textSecondary: Palette.gray[500],
+    primary: Palette.primary[400],
+    complementary: Palette.complementary[400],
   },
   dark: {
-    text: '#ffffff',
+    text: Palette.gray[100],
     background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    backgroundElement: Palette.gray[600],
+    backgroundSelected: Palette.gray[500],
+    textSecondary: Palette.gray[300],
+    primary: Palette.primary[400],
+    complementary: Palette.complementary[400],
   },
 } as const;
 

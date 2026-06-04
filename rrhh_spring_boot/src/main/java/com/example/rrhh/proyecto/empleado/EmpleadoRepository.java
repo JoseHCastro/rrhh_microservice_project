@@ -28,4 +28,14 @@ public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
     Optional<Empleado> findByCarnetIdentidad(String carnetIdentidad);
 
     boolean existsByCarnetIdentidad(String carnetIdentidad);
+
+    @Query("""
+        SELECT e FROM Empleado e
+        JOIN FETCH e.departamento d
+        JOIN FETCH e.cargo c
+        LEFT JOIN FETCH e.supervisor s
+        JOIN Usuario u ON u.empleado.id = e.id
+        WHERE u.username = :username
+    """)
+    Optional<Empleado> findByUsuarioUsername(@Param("username") String username);
 }

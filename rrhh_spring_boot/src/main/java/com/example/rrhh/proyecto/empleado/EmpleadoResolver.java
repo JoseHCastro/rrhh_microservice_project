@@ -18,6 +18,7 @@ public class EmpleadoResolver {
 
     private final EmpleadoService empleadoService;
     private final UsuarioRepository usuarioRepository;
+    private final EmpleadoRepository empleadoRepository;
 
     // ── Queries ─────────────────────────────────────────────────
     @QueryMapping
@@ -50,6 +51,13 @@ public class EmpleadoResolver {
     @PreAuthorize("isAuthenticated()")
     public Empleado empleado(@Argument Long id) {
         return empleadoService.findById(id);
+    }
+
+    @QueryMapping
+    @PreAuthorize("isAuthenticated()")
+    public Empleado miEmpleado() {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        return empleadoRepository.findByUsuarioUsername(username).orElse(null);
     }
 
     // ── Mutations ────────────────────────────────────────────────

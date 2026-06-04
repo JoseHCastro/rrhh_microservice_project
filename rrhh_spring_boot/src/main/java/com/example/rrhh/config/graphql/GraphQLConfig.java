@@ -17,7 +17,7 @@ public class GraphQLConfig {
         return wiringBuilder -> wiringBuilder
             .scalar(ExtendedScalars.Date)            // LocalDate
             .scalar(ExtendedScalars.DateTime)        // LocalDateTime
-            .scalar(ExtendedScalars.Time)            // LocalTime
+            .scalar(ExtendedScalars.LocalTime)       // LocalTime (without offset)
             .scalar(ExtendedScalars.GraphQLBigDecimal);
     }
 }

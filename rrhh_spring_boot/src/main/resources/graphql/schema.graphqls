@@ -1,7 +1,7 @@
 # Scalars personalizados
 scalar Date
 scalar DateTime
-scalar Time
+scalar LocalTime
 scalar BigDecimal
 
 # ==================== ENUMS ====================
@@ -83,8 +83,8 @@ type Empleado {
     departamento: Departamento!
     cargo: Cargo!
     supervisor: Empleado
-    horaEntrada: Time!
-    horaSalida: Time!
+    horaEntrada: LocalTime!
+    horaSalida: LocalTime!
     telefono: String
     carnetIdentidad: String
     # Relación bidireccional / fetch batch
@@ -180,8 +180,8 @@ input EmpleadoInput {
     departamentoId: ID!
     cargoId: ID!
     supervisorId: ID
-    horaEntrada: Time!
-    horaSalida: Time!
+    horaEntrada: LocalTime!
+    horaSalida: LocalTime!
     telefono: String
     carnetIdentidad: String
 }
@@ -213,6 +213,7 @@ type Query {
     # Empleados
     empleados(page: Int, size: Int, estado: EstadoEmpleado, departamentoId: ID): EmpleadoPage!
     empleado(id: ID!): Empleado
+    miEmpleado: Empleado
 
     # Departamentos y Cargos
     departamentos: [Departamento!]!
