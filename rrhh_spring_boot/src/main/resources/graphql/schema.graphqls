@@ -1,6 +1,6 @@
 # Scalars personalizados
 scalar Date
-scalar DateTime
+scalar LocalDateTime
 scalar LocalTime
 scalar BigDecimal
 
@@ -53,7 +53,7 @@ type Usuario {
     id: ID!
     username: String!
     activo: Boolean!
-    createdAt: DateTime
+    createdAt: LocalDateTime
     roles: [UsuarioRol!]!
 }
 
@@ -107,21 +107,21 @@ type PageInfo {
 type SistemaConfig {
     id: ID!
     estado: EstadoSistema!
-    fechaHoraEstado: DateTime!
+    fechaHoraEstado: LocalDateTime!
 }
 
 type ReconocimientoFacial {
     id: ID!
     empleado: Empleado!
     codigoFacial: String!
-    fechaRegistro: DateTime!
+    fechaRegistro: LocalDateTime!
 }
 
 type RegistroAsistencia {
     id: ID!
     empleado: Empleado!
-    horaEntrada: DateTime!
-    horaSalida: DateTime
+    horaEntrada: LocalDateTime!
+    horaSalida: LocalDateTime
     ubicacionGps: String
     estado: EstadoAsistencia!
     estadoPlanilla: EstadoPlanilla!
@@ -144,7 +144,7 @@ type SolicitudAusencia {
     fechaInicio: Date!
     fechaFin: Date!
     estado: EstadoSolicitud!
-    fechaSolicitud: DateTime!
+    fechaSolicitud: LocalDateTime!
     aprobador: Usuario
 }
 
@@ -160,7 +160,7 @@ type Preplanilla {
     licencias: Int!
     horasExtra: BigDecimal!
     marcacionesObservadas: Int!
-    fechaCreacion: DateTime!
+    fechaCreacion: LocalDateTime!
 }
 
 type TokenPush {
@@ -168,7 +168,7 @@ type TokenPush {
     tokenFcm: String!
     dispositivo: String
     activo: Boolean!
-    createdAt: DateTime
+    createdAt: LocalDateTime
 }
 
 # ==================== INPUTS ====================
@@ -223,7 +223,7 @@ type Query {
 
     # Asistencia y Ausencias
     sistemaConfigEstado: SistemaConfig
-    registrosAsistencia(empleadoId: ID, desde: DateTime, hasta: DateTime, page: Int, size: Int): RegistroAsistenciaPage!
+    registrosAsistencia(empleadoId: ID, desde: LocalDateTime, hasta: LocalDateTime, page: Int, size: Int): RegistroAsistenciaPage!
     tiposAusencia: [TipoAusencia!]!
     solicitudesAusencia(estado: EstadoSolicitud, empleadoId: ID): [SolicitudAusencia!]!
 
