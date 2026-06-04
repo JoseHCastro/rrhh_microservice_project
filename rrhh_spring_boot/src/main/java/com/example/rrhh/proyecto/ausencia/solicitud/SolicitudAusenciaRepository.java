@@ -13,6 +13,7 @@ public interface SolicitudAusenciaRepository extends JpaRepository<SolicitudAuse
         SELECT s FROM SolicitudAusencia s
         JOIN FETCH s.empleado
         JOIN FETCH s.tipoAusencia
+        LEFT JOIN FETCH s.aprobador
         WHERE (:estado IS NULL OR s.estado = :estado)
           AND (:empleadoId IS NULL OR s.empleado.id = :empleadoId)
         ORDER BY s.fechaSolicitud DESC
