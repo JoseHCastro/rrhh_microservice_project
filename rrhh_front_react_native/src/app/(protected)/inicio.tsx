@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, Palette } from '@/constants/theme';
@@ -99,8 +99,8 @@ export default function InicioScreen() {
         onLogout={handleLogout}
       />
 
-      <ScrollView 
-        style={styles.contentScroll} 
+      <ScrollView
+        style={styles.contentScroll}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
@@ -113,7 +113,7 @@ export default function InicioScreen() {
                   <Text style={[styles.cardFullName, { color: theme.text }]}>{employee.nombreCompleto}</Text>
                   <Text style={[styles.cardRole, { color: textColorSecondary }]}>{employee.cargo.nombre}</Text>
                 </View>
-                
+
                 <View style={[styles.statusBadge, { backgroundColor: employee.estado === 'ACTIVO' ? '#10B98120' : '#EF444420' }]}>
                   <View style={[styles.statusDot, { backgroundColor: employee.estado === 'ACTIVO' ? '#10B981' : '#EF4444' }]} />
                   <Text style={[styles.statusText, { color: employee.estado === 'ACTIVO' ? '#10B981' : '#EF4444' }]}>

@@ -1,41 +1,149 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Alert, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as LocalAuthentication from 'expo-local-authentication';
+import * as Location from 'expo-location';
+
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import { Header } from '@/components/Header';
+import { BiometricUnlock } from '@/components/BiometricUnlock';
+import { FaceScanner } from '@/components/FaceScanner';
 import { authService } from '@/services/authService';
+import { employeeService } from '@/services/employeeService';
+import { Empleado } from '@/types/employee';
+
+type Step = 'UNLOCK' | 'SCAN';
 
 export default function AsistenciaScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
 
-  const appBg = theme.background;
-  const textColorSecondary = theme.textSecondary;
+  const [currentStep, setCurrentStep] = useState<Step>('UNLOCK');
+  const [isScanningBiometrics, setIsScanningBiometrics] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  
+  const [employee, setEmployee] = useState<Empleado | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadEmployee = async () => {
+      try {
+        const me = await employeeService.getMyEmployeeProfile();
+        setEmployee(me);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadEmployee();
+  }, []);
 
   const handleLogout = () => {
     authService.logout();
     router.replace('/');
   };
 
+  const initiateBiometricUnlock = async () => {
+    setIsScanningBiometrics(true);
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+      if (!hasHardware || !isEnrolled) {
+        Alert.alert(
+          'Biometría no disponible', 
+          'Tu dispositivo no tiene biometría configurada. Por favor, usa otro método.'
+        );
+        // Fallback for demo purposes
+        setCurrentStep('SCAN');
+        return;
+      }
+
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Verifica tu identidad para marcar asistencia',
+        fallbackLabel: 'Usar contraseña',
+      });
+
+      if (result.success) {
+        setCurrentStep('SCAN');
+      } else {
+        Alert.alert('Autenticación fallida', 'No se pudo verificar tu identidad.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Ocurrió un error al usar la biometría.');
+    } finally {
+      setIsScanningBiometrics(false);
+    }
+  };
+
+  const handleRegisterAttendance = async (photoBase64: string, location: Location.LocationObject) => {
+    if (!employee) return;
+    
+    setIsRegistering(true);
+    try {
+      // TODO: Here we will call the FastAPI GraphQL mutation
+      // await asistenciaService.registrar(employee.id, photoBase64, location.coords.latitude, location.coords.longitude);
+      
+      // Simulate API call for now
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      Alert.alert('Éxito', 'Asistencia registrada correctamente.', [
+        {
+          text: 'OK',
+          onPress: () => {
+            setCurrentStep('UNLOCK');
+          }
+        }
+      ]);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Error al registrar la asistencia.');
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  if (!employee) {
+    return (
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: theme.text }}>No se pudo cargar el perfil del empleado.</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: appBg }]}>
-      <Header
-        activeTab="asistencia"
-        onLogout={handleLogout}
-      />
-      <View style={styles.emptyViewContainer}>
-        <View style={[styles.emptyViewIconCircle, { backgroundColor: theme.primary + '15' }]}>
-          <MaterialCommunityIcons name="fingerprint" size={44} color={theme.primary} />
-        </View>
-        <Text style={[styles.emptyViewTitle, { color: theme.text }]}>Asistencia</Text>
-        <Text style={[styles.emptyViewSubtitle, { color: textColorSecondary }]}>
-          Esta sección está en desarrollo.
-        </Text>
-      </View>
+    <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+      {currentStep === 'UNLOCK' && (
+        <>
+          <Header activeTab="asistencia" onLogout={handleLogout} />
+          <BiometricUnlock 
+            onInitiateScan={initiateBiometricUnlock}
+            onUnlockSuccess={() => setCurrentStep('SCAN')}
+            isScanning={isScanningBiometrics}
+          />
+        </>
+      )}
+
+      {currentStep === 'SCAN' && (
+        <FaceScanner 
+          onBack={() => setCurrentStep('UNLOCK')}
+          onRegister={handleRegisterAttendance}
+          employee={employee}
+          isRegistering={isRegistering}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -43,30 +151,5 @@ export default function AsistenciaScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-  },
-  emptyViewContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-  },
-  emptyViewIconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  emptyViewTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    marginBottom: 12,
-  },
-  emptyViewSubtitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 24,
   },
 });
