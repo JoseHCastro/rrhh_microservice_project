@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors, Palette } from '@/constants/theme';
 import { SolicitudAusencia } from '@/types/solicitud';
 import { SolicitudItem } from '@/components/SolicitudItem';
+import { Feather } from '@expo/vector-icons';
 
 interface SolicitudListProps {
   solicitudes: SolicitudAusencia[];

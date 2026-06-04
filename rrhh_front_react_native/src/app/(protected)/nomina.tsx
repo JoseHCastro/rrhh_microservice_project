@@ -1,12 +1,15 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors } from '@/constants/theme';
+import { Colors, Palette } from '@/constants/theme';
 import { Header } from '@/components/Header';
 import { authService } from '@/services/authService';
+import { employeeService } from '@/services/employeeService';
+import { nominaService } from '@/services/nominaService';
+import { Preplanilla } from '@/types/nomina';
+import { PreplanillaList } from '@/components/PreplanillaList';
 
 export default function NominaScreen() {
   const colorScheme = useColorScheme();
@@ -14,7 +17,41 @@ export default function NominaScreen() {
   const theme = isDark ? Colors.dark : Colors.light;
 
   const appBg = theme.background;
-  const textColorSecondary = theme.textSecondary;
+  
+  const [preplanillas, setPreplanillas] = useState<Preplanilla[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [empleadoId, setEmpleadoId] = useState<string | undefined>();
+
+  const loadData = useCallback(async () => {
+    try {
+      setError(null);
+      const me = await employeeService.getMyEmployeeProfile();
+      if (!me) {
+        throw new Error('No se encontró el perfil del empleado');
+      }
+      const idStr = String(me.id);
+      setEmpleadoId(idStr);
+      const myPreplanillas = await nominaService.getMisPreplanillas(idStr);
+      setPreplanillas(myPreplanillas);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Error al cargar las preplanillas.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadData();
+  };
 
   const handleLogout = () => {
     authService.logout();
@@ -23,19 +60,37 @@ export default function NominaScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: appBg }]}>
-      <Header
-        activeTab="nomina"
-        onLogout={handleLogout}
-      />
-      <View style={styles.emptyViewContainer}>
-        <View style={[styles.emptyViewIconCircle, { backgroundColor: theme.primary + '15' }]}>
-          <Feather name="dollar-sign" size={40} color={theme.primary} />
+      <Header activeTab="nomina" onLogout={handleLogout} />
+
+      {loading && !refreshing ? (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
-        <Text style={[styles.emptyViewTitle, { color: theme.text }]}>Nómina</Text>
-        <Text style={[styles.emptyViewSubtitle, { color: textColorSecondary }]}>
-          Esta sección está en desarrollo.
-        </Text>
-      </View>
+      ) : error ? (
+        <View style={styles.centerContainer}>
+          <Text style={[styles.errorText, { color: Palette.complementary[400] }]}>{error}</Text>
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.primary}
+              colors={[theme.primary]}
+            />
+          }
+        >
+          <PreplanillaList 
+            preplanillas={preplanillas} 
+            empleadoId={empleadoId} 
+            onPressPreplanilla={(p) => console.log('Press', p.id)}
+            onDownloadPreplanilla={(p) => console.log('Download', p.id)}
+          />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -44,29 +99,21 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
   },
-  emptyViewContainer: {
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+  centerContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
+    padding: 24,
   },
-  emptyViewIconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  emptyViewTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    marginBottom: 12,
-  },
-  emptyViewSubtitle: {
+  errorText: {
     fontSize: 16,
-    fontWeight: '500',
     textAlign: 'center',
-    lineHeight: 24,
   },
 });
