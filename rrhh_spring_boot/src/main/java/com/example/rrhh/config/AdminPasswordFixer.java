@@ -20,11 +20,11 @@ public class AdminPasswordFixer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        usuarioRepository.findByUsernameWithRoles("admin").ifPresent(admin -> {
-            String newHash = passwordEncoder.encode("password123");
-            admin.setPassword(newHash);
-            usuarioRepository.save(admin);
-            log.info("FIX: Admin password has been forcefully reset to 'password123'");
+        String newHash = passwordEncoder.encode("password123");
+        usuarioRepository.findAll().forEach(usuario -> {
+            usuario.setPassword(newHash);
+            usuarioRepository.save(usuario);
         });
+        log.info("FIX: All users' passwords have been forcefully reset to 'password123'");
     }
 }
