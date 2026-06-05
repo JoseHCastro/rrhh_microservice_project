@@ -1,0 +1,71 @@
+<header class="topbar">
+  <button class="ibtv hmb" aria-label="Menú" (click)="layout.toggleNav()">
+    <app-icon name="menu" [size]="18" [stroke]="2"></app-icon>
+  </button>
+
+  <div class="search">
+    <app-icon name="search" [size]="17" [stroke]="2"></app-icon>
+    <input type="text" placeholder="Buscar empleados, planillas, marcaciones…" />
+    <kbd>Ctrl K</kbd>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="tb-act">
+    <!-- Tema -->
+    <button class="ibtv" aria-label="Tema" (click)="theme.toggle()">
+      <app-icon *ngIf="(theme.mode$ | async) === 'light'" name="sun" [size]="18" [stroke]="2"></app-icon>
+      <app-icon *ngIf="(theme.mode$ | async) === 'dark'" name="moon" [size]="18" [stroke]="2"></app-icon>
+    </button>
+
+    <!-- Notificaciones -->
+    <div class="pop-wr">
+      <button class="ibtv" aria-label="Notificaciones" (click)="togglePop('nb', $event)">
+        <app-icon name="bell" [size]="18" [stroke]="1.85"></app-icon>
+      </button>
+      <div class="pop" [class.show]="pop === 'nb'" (click)="$event.stopPropagation()">
+        <div class="pop-hd"><h4>Notificaciones</h4><span>Marcar todo leído</span></div>
+        <div class="pop-it">
+          <div class="pop-ic ca"><app-icon name="clock" [size]="16" [stroke]="2"></app-icon></div>
+          <div><div class="pi-t">Marcaciones por revisar</div><div class="pi-s">Conéctate al backend para ver datos reales</div></div>
+        </div>
+        <div class="pop-it">
+          <div class="pop-ic ci"><app-icon name="inbox" [size]="16" [stroke]="1.9"></app-icon></div>
+          <div><div class="pi-t">Solicitudes pendientes</div><div class="pi-s">Bandeja de ausencias</div></div>
+        </div>
+        <div class="pop-sep"></div>
+        <div class="pop-it" style="justify-content:center">
+          <a class="lnk" routerLink="/solicitudes" (click)="pop = null">Ver todas →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="dvr"></div>
+
+    <!-- Perfil -->
+    <div class="pop-wr">
+      <div class="prof" (click)="togglePop('prof', $event)">
+        <div class="av">{{ initials }}</div>
+        <div class="pf-meta">
+          <div class="pf-n">{{ auth.currentUser?.username || 'Usuario' }}</div>
+          <div class="pf-r">{{ (auth.currentUser?.roles || [])[0] || 'Sesión activa' }}</div>
+        </div>
+        <app-icon name="chevronDown" [size]="16" [stroke]="2.2"></app-icon>
+      </div>
+      <div class="pop" [class.show]="pop === 'prof'" style="width:240px" (click)="$event.stopPropagation()">
+        <div class="pop-it" style="cursor:default">
+          <div class="av" style="width:40px;height:40px;border-radius:11px">{{ initials }}</div>
+          <div>
+            <div class="pi-t">{{ auth.currentUser?.username || 'Usuario' }}</div>
+            <div class="pi-s">{{ auth.currentUser?.roles?.join(', ') || '—' }}</div>
+          </div>
+        </div>
+        <div class="pop-sep"></div>
+        <div class="mi"><app-icon name="user" [size]="16" [stroke]="1.85"></app-icon>Mi perfil</div>
+        <div class="mi"><app-icon name="settings" [size]="16" [stroke]="1.85"></app-icon>Configuración</div>
+        <div class="pop-sep"></div>
+        <div class="mi dan" (click)="logout()"><app-icon name="logOut" [size]="16" [stroke]="1.85"></app-icon>Cerrar sesión</div>
+      </div>
+    </div>
+  </div>
+</header>

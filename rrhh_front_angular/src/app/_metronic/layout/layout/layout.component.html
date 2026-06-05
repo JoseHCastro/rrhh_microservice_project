@@ -1,0 +1,16 @@
+<!-- Shell principal del panel (post-login). -->
+<div class="app" [class.nav-open]="nav.navOpen$ | async">
+  <app-sidebar></app-sidebar>
+
+  <div class="main">
+    <app-header></app-header>
+
+    <!-- Las páginas/módulos hijos (lazy) se renderizan aquí -->
+    <div id="ca">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" [class.show]="nav.navOpen$ | async" (click)="nav.closeNav()"></div>
+<app-toast></app-toast>

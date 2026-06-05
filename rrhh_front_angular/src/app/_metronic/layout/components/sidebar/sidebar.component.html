@@ -1,0 +1,98 @@
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark"><app-icon name="cube" [size]="21"></app-icon></div>
+    <div>
+      <div class="brand-name">TechVentures</div>
+      <div class="brand-sub">ERP · RRHH Integral</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="ni" routerLink="/dashboard" routerLinkActive="active" (click)="onNavigate()">
+      <app-icon name="grid" [size]="18" [stroke]="1.9"></app-icon>
+      Dashboard General
+    </button>
+
+    <div class="nav-lbl">Gestión Empresarial</div>
+
+    <!-- Organización (Core HR) -->
+    <div class="ng" [class.open]="open['org']">
+      <button class="ni" (click)="toggle('org')">
+        <app-icon name="building" [size]="18" [stroke]="1.75"></app-icon>
+        Organización (Core HR)
+        <app-icon name="chevronRight" class="chev" [size]="15" [stroke]="2.2"></app-icon>
+      </button>
+      <div class="nsub"><div class="nsub-in">
+        <a routerLink="/empleados" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Empleados</a>
+        <a routerLink="/departamentos" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Departamentos</a>
+        <a routerLink="/cargos" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Cargos y Salarios</a>
+      </div></div>
+    </div>
+
+    <!-- Control de Asistencia -->
+    <div class="ng" [class.open]="open['asis']">
+      <button class="ni" (click)="toggle('asis')">
+        <app-icon name="clock" [size]="18" [stroke]="1.75"></app-icon>
+        Control de Asistencia
+        <app-icon name="chevronRight" class="chev" [size]="15" [stroke]="2.2"></app-icon>
+      </button>
+      <div class="nsub"><div class="nsub-in">
+        <a routerLink="/marcaciones" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Registro de Marcaciones</a>
+        <a routerLink="/dispositivos" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Dispositivos IoT</a>
+        <a routerLink="/reconocimiento" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Reconocimiento Biométrico</a>
+      </div></div>
+    </div>
+
+    <!-- Gestión de Ausencias -->
+    <div class="ng" [class.open]="open['aus']">
+      <button class="ni" (click)="toggle('aus')">
+        <app-icon name="calendarX" [size]="18" [stroke]="1.75"></app-icon>
+        Gestión de Ausencias
+        <app-icon name="chevronRight" class="chev" [size]="15" [stroke]="2.2"></app-icon>
+      </button>
+      <div class="nsub"><div class="nsub-in">
+        <a routerLink="/solicitudes" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Bandeja de Solicitudes</a>
+        <a routerLink="/tipos-ausencia" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Tipos de Ausencia</a>
+      </div></div>
+    </div>
+
+    <!-- Nómina y Reportes -->
+    <div class="ng" [class.open]="open['nom']">
+      <button class="ni" (click)="toggle('nom')">
+        <app-icon name="fileText" [size]="18" [stroke]="1.75"></app-icon>
+        Nómina y Reportes
+        <app-icon name="chevronRight" class="chev" [size]="15" [stroke]="2.2"></app-icon>
+      </button>
+      <div class="nsub"><div class="nsub-in">
+        <a routerLink="/preplanillas" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Preplanillas Mensuales</a>
+      </div></div>
+    </div>
+
+    <div class="nav-lbl">Plataforma</div>
+
+    <!-- Seguridad y Sistema -->
+    <div class="ng" [class.open]="open['seg']">
+      <button class="ni" (click)="toggle('seg')">
+        <app-icon name="shield" [size]="18" [stroke]="1.75"></app-icon>
+        Seguridad y Sistema
+        <app-icon name="chevronRight" class="chev" [size]="15" [stroke]="2.2"></app-icon>
+      </button>
+      <div class="nsub"><div class="nsub-in">
+        <a routerLink="/usuarios" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Usuarios y Roles</a>
+        <a routerLink="/tokens" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Dispositivos Vinculados</a>
+        <a routerLink="/auditoria" routerLinkActive="sa" (click)="onNavigate()"><span class="dot"></span>Bitácora de Auditoría</a>
+      </div></div>
+    </div>
+  </nav>
+
+  <div class="sfoot">
+    <div class="scard">
+      <div class="pulse"></div>
+      <div style="flex:1">
+        <div class="sc-t">Sistema operativo</div>
+        <div class="sc-s">Backend: localhost:8080</div>
+      </div>
+      <app-icon name="power" [size]="20" [stroke]="1.9"></app-icon>
+    </div>
+  </div>
+</aside>

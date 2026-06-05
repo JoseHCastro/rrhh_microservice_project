@@ -1,59 +1,67 @@
-# RrhhFrontAngular
+# Sistema de Gestión de Recursos Humanos (RRHH) - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.12.
+Este repositorio contiene la aplicación cliente (frontend) para el Sistema de Gestión de Recursos Humanos (RRHH). Está desarrollado como una Single Page Application (SPA) utilizando **Angular**, proporcionando una interfaz de usuario moderna, reactiva y altamente interactiva para la administración integral del personal de la empresa.
 
-## Development server
+## Funcionalidades Principales
 
-To start a local development server, run:
+El sistema está compuesto por los siguientes módulos y funcionalidades clave:
+
+- **Gestión de Empleados:** Alta, baja, modificación y consulta de la información detallada del personal de la organización.
+- **Gestión de Departamentos:** Administración de la estructura organizacional, creación de áreas y asignación de departamentos.
+- **Registro de Asistencia:** Control y seguimiento de la asistencia diaria de los empleados, gestionando entradas y salidas.
+- **Gestión de Preplanillas:** Cálculo preliminar y generación de la nómina (preplanilla) en base a la asistencia y los datos del empleado.
+
+## Tecnologías y Versiones
+
+- **Angular:** `16.2.0` (Framework principal).
+- **Node.js:** Versión `18.x` o superior recomendada (el proyecto es compatible y ha sido probado con la versión `20.x`).
+- **NPM:** Gestor de paquetes de Node.js.
+- **Bootstrap:** `5.3.2` (Framework CSS para diseño responsivo).
+- **RxJS:** `7.8.0` (Librería para programación reactiva).
+
+## Requisitos Previos
+
+Asegúrate de tener instalados los siguientes componentes en tu máquina local antes de iniciar el proyecto:
+
+1. [Node.js](https://nodejs.org/) (Versión 18 o superior).
+2. [Angular CLI](https://angular.io/cli) (Puedes instalarlo globalmente ejecutando: `npm install -g @angular/cli@16`).
+
+## Instrucciones para Iniciar el Proyecto
+
+Sigue estos pasos para levantar el entorno de desarrollo local:
+
+1. **Navegar al directorio del proyecto:**
+   Abre tu terminal y ubícate en la carpeta raíz del frontend:
+   ```bash
+   cd rrhh_front_angular
+   ```
+
+2. **Instalar las dependencias:**
+   Descarga e instala todas las librerías necesarias ejecutando:
+   ```bash
+   npm install
+   ```
+   *(Nota: si experimentas algún problema o conflicto de versiones con paquetes de terceros, puedes probar instalando con la bandera `npm install --legacy-peer-deps`).*
+
+3. **Ejecutar el servidor de desarrollo:**
+   Una vez instaladas las dependencias, inicia la aplicación localmente con el comando:
+   ```bash
+   npm start
+   ```
+   *(Este comando ejecuta internamente `ng serve`).*
+
+4. **Acceder a la aplicación:**
+   Cuando la compilación finalice exitosamente, abre tu navegador web preferido y dirígete a:
+   [http://localhost:4200/](http://localhost:4200/)
+
+   El servidor cuenta con *Live Reload*, por lo que la aplicación se recargará automáticamente en el navegador cada vez que guardes cambios en el código fuente.
+
+## Construcción para Producción (Build)
+
+Si necesitas generar los archivos optimizados para desplegar la aplicación en un entorno de producción, ejecuta:
 
 ```bash
-ng serve
+npm run build
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Los artefactos finales compilados, minificados y listos para producción se generarán dentro del directorio `dist/`.

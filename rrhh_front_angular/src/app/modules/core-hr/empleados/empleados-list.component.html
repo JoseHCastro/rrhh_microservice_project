@@ -1,0 +1,136 @@
+<div class="cnt">
+  <div class="ph">
+    <div>
+      <div class="crumb">Inicio <span class="sl">/</span> <b>Empleados</b></div>
+      <h1>Empleados</h1>
+      <div style="font-size:12.5px;color:var(--tx3);margin-top:6px" *ngIf="page">
+        {{ page.pageInfo.totalElements }} empleados registrados
+      </div>
+    </div>
+    <div class="pha">
+      <button class="btn pri" (click)="openModal()">
+        <app-icon name="plus" [size]="16"></app-icon><span>Nuevo empleado</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="fb">
+      <div class="fis">
+        <app-icon name="search" [size]="15" [stroke]="2"></app-icon>
+        <input type="text" placeholder="Buscar por nombre o carnet…" [(ngModel)]="search" />
+      </div>
+      <select [(ngModel)]="estado" (change)="changeFilter()">
+        <option value="">Todos los estados</option>
+        <option [value]="EstadoEmpleado.ACTIVO">Activos</option>
+        <option [value]="EstadoEmpleado.INACTIVO">Inactivos</option>
+      </select>
+      <select [(ngModel)]="deptId" (change)="changeFilter()">
+        <option value="">Todos los departamentos</option>
+        <option *ngFor="let d of departamentos" [value]="d.id">{{ d.nombre }}</option>
+      </select>
+    </div>
+
+    <!-- Estados -->
+    <div class="loadc" *ngIf="loading"><div class="spin"></div></div>
+
+    <div class="es" *ngIf="error && !loading">
+      <div class="esic cr2"><app-icon name="alert" [size]="24"></app-icon></div>
+      <h4>No se pudieron cargar los empleados</h4>
+      <p>{{ error }}</p>
+      <button class="btn" (click)="load()"><app-icon name="refresh" [size]="15"></app-icon> Reintentar</button>
+    </div>
+
+    <div class="tw" *ngIf="!loading && !error">
+      <table>
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Departamento</th>
+            <th>Contratación</th>
+            <th>Horario</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="cr" *ngFor="let e of rows" (click)="open(e)">
+            <td>
+              <div class="cs">
+                <div class="sic" style="background:var(--brand)">{{ initials(e) }}</div>
+                <div>
+                  <div class="sn">{{ e.nombreCompleto }}</div>
+                  <div class="ss">{{ e.cargo?.nombre }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="mt">{{ e.departamento?.nombre || '—' }}</td>
+            <td class="mn">{{ e.fechaContratacion | date: 'dd MMM y' }}</td>
+            <td class="mn">{{ e.horaEntrada ? (e.horaEntrada.slice(0,5) + ' – ' + (e.horaSalida || '').slice(0,5)) : '—' }}</td>
+            <td>
+              <span class="bst" [class.bok]="e.estado === EstadoEmpleado.ACTIVO" [class.bsl]="e.estado !== EstadoEmpleado.ACTIVO">
+                <span class="bd2"></span>{{ e.estado }}
+              </span>
+            </td>
+            <td><button class="ra"><app-icon name="chevronRight" [size]="15" [stroke]="2"></app-icon></button></td>
+          </tr>
+          <tr *ngIf="rows.length === 0">
+            <td colspan="6">
+              <div class="es">
+                <div class="esic ci"><app-icon name="search" [size]="22"></app-icon></div>
+                <h4>Sin resultados</h4>
+                <p>Ajusta los filtros o crea un nuevo empleado.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tft" *ngIf="page && !loading && !error">
+      <span>Página {{ page.pageInfo.currentPage + 1 }} de {{ page.pageInfo.totalPages || 1 }}</span>
+      <span style="display:flex;gap:8px">
+        <button class="btn sm" [disabled]="pageIndex === 0" (click)="prev()">Anterior</button>
+        <button class="btn sm" [disabled]="!page.pageInfo.hasNext" (click)="next()">Siguiente</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: nuevo empleado -->
+<app-modal [open]="modalOpen" title="Nuevo Empleado" [okLabel]="saving ? 'Guardando…' : 'Crear empleado'"
+           (close)="modalOpen = false" (confirm)="save()">
+  <form [formGroup]="form">
+    <div class="fr">
+      <div class="ff"><label>Nombre *</label><input type="text" formControlName="nombre" placeholder="Ej. Valeria" /></div>
+      <div class="ff"><label>Apellido *</label><input type="text" formControlName="apellido" placeholder="Ej. Mendoza" /></div>
+    </div>
+    <div class="fr">
+      <div class="ff">
+        <label>Departamento *</label>
+        <select formControlName="departamentoId">
+          <option value="">Seleccionar…</option>
+          <option *ngFor="let d of departamentos" [value]="d.id">{{ d.nombre }}</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Cargo *</label>
+        <select formControlName="cargoId">
+          <option value="">Seleccionar…</option>
+          <option *ngFor="let c of cargos" [value]="c.id">{{ c.nombre }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="ff"><label>Teléfono</label><input type="text" formControlName="telefono" placeholder="70000000" /></div>
+      <div class="ff"><label>Carnet de identidad</label><input type="text" formControlName="carnetIdentidad" placeholder="7500000" /></div>
+    </div>
+    <div class="fr">
+      <div class="ff"><label>Hora entrada</label><input type="time" formControlName="horaEntrada" /></div>
+      <div class="ff"><label>Hora salida</label><input type="time" formControlName="horaSalida" /></div>
+    </div>
+    <div class="fr one">
+      <div class="ff"><label>Fecha de contratación</label><input type="date" formControlName="fechaContratacion" /></div>
+    </div>
+  </form>
+</app-modal>

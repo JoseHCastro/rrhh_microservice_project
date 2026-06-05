@@ -33,7 +33,9 @@ public class EmpleadoService {
 
     @Transactional(readOnly = true)
     public Empleado findById(Long id) {
-        return empleadoRepository.findById(id)
+        // Con JOIN FETCH para que departamento/cargo/supervisor estén disponibles
+        // durante la serialización GraphQL (open-in-view=false).
+        return empleadoRepository.findByIdWithRelations(id)
             .orElseThrow(() -> new ResourceNotFoundException("Empleado", id));
     }
 

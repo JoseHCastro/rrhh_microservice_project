@@ -11,7 +11,8 @@ public interface PreplanillaRepository extends JpaRepository<Preplanilla, Long> 
 
     @Query("""
         SELECT p FROM Preplanilla p
-        WHERE (:empleadoId IS NULL OR p.empleado.id = :empleadoId)
+        JOIN FETCH p.empleado e
+        WHERE (:empleadoId IS NULL OR e.id = :empleadoId)
           AND (:periodo IS NULL OR p.periodo = :periodo)
         ORDER BY p.periodo DESC
     """)

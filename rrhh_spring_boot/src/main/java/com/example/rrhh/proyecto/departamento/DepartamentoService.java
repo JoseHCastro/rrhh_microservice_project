@@ -16,7 +16,7 @@ public class DepartamentoService {
 
     @Transactional(readOnly = true)
     public List<Departamento> findAll() {
-        return departamentoRepository.findAll();
+        return departamentoRepository.findAllWithGerente();
     }
 
     @Transactional(readOnly = true)

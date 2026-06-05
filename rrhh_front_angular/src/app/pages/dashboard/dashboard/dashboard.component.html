@@ -1,0 +1,101 @@
+<div class="cnt">
+  <div class="ph">
+    <div>
+      <div class="crumb">Inicio <span class="sl">/</span> <b>Dashboard General</b></div>
+      <h1>Dashboard General</h1>
+      <div style="font-size:12.5px;color:var(--tx3);margin-top:6px">Resumen ejecutivo de RRHH</div>
+    </div>
+    <div class="pha">
+      <button class="btn" (click)="load()"><app-icon name="refresh" [size]="16"></app-icon><span>Actualizar</span></button>
+      <button class="btn pri" routerLink="/empleados"><app-icon name="users" [size]="16"></app-icon><span>Ver empleados</span></button>
+    </div>
+  </div>
+
+  <div class="loadc" *ngIf="loading"><div class="spin"></div></div>
+
+  <div class="card" *ngIf="error && !loading">
+    <div class="es">
+      <div class="esic cr2"><app-icon name="alert" [size]="24"></app-icon></div>
+      <h4>No se pudo cargar el dashboard</h4>
+      <p>{{ error }}</p>
+      <button class="btn" (click)="load()"><app-icon name="refresh" [size]="15"></app-icon> Reintentar</button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-top">
+          <div><div class="kpi-lbl">Empleados</div><div class="kpi-val">{{ totalEmpleados }}</div></div>
+          <div class="kpi-ico ci"><app-icon name="users" [size]="21"></app-icon></div>
+        </div>
+        <div class="kpi-ft"><span class="delta up">{{ activos }} activos</span><span class="mu">en muestra</span></div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div><div class="kpi-lbl">Departamentos</div><div class="kpi-val">{{ totalDepartamentos }}</div></div>
+          <div class="kpi-ico cbl"><app-icon name="building2" [size]="21"></app-icon></div>
+        </div>
+        <div class="kpi-ft"><span class="mu">áreas organizacionales</span></div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div><div class="kpi-lbl">Solicitudes pendientes</div><div class="kpi-val">{{ pendientes }}</div></div>
+          <div class="kpi-ico ca"><app-icon name="inbox" [size]="21"></app-icon></div>
+        </div>
+        <div class="kpi-ft"><a class="lnk" routerLink="/solicitudes">Revisar bandeja →</a></div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div><div class="kpi-lbl">Estado del sistema</div><div class="kpi-val" style="font-size:20px">{{ estadoSistema }}</div></div>
+          <div class="kpi-ico ce"><app-icon name="power" [size]="21"></app-icon></div>
+        </div>
+        <div class="kpi-ft"><span class="ontag"><span class="pulse"></span> IoT operativo</span></div>
+      </div>
+    </div>
+
+    <!-- Distribución + accesos -->
+    <div class="glo">
+      <div class="cleft">
+        <div class="card">
+          <div class="chd">
+            <div class="chl">
+              <div class="chi ci"><app-icon name="chart" [size]="17" [stroke]="1.9"></app-icon></div>
+              <div><h3>Distribución de Personal</h3><div class="chs">Empleados por departamento</div></div>
+            </div>
+            <a class="lnk" routerLink="/departamentos">Ver org →</a>
+          </div>
+          <div class="dlist">
+            <div class="drow" *ngFor="let d of deptStats; let i = index">
+              <div class="dtop">
+                <div class="dname"><span class="dt" [style.background]="deptColors[i % deptColors.length]"></span>{{ d.nombre }}</div>
+                <div class="dcnt">{{ d.count }} <span>empleados</span></div>
+              </div>
+              <div class="bar"><i [style.width.%]="d.pct" [style.background]="deptColors[i % deptColors.length]"></i></div>
+            </div>
+            <div class="es" *ngIf="deptStats.length === 0"><h4>Sin datos</h4><p>Aún no hay empleados registrados.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="align-self:start">
+        <div class="chd">
+          <div class="chl">
+            <div class="chi ce"><app-icon name="grid" [size]="17" [stroke]="1.9"></app-icon></div>
+            <div><h3>Accesos rápidos</h3><div class="chs">Operaciones frecuentes</div></div>
+          </div>
+        </div>
+        <div style="padding:14px 18px;display:flex;flex-direction:column;gap:10px">
+          <button class="btn" style="justify-content:flex-start" routerLink="/empleados"><app-icon name="users" [size]="16"></app-icon> Gestionar empleados</button>
+          <button class="btn" style="justify-content:flex-start" routerLink="/departamentos"><app-icon name="building2" [size]="16"></app-icon> Departamentos</button>
+          <button class="btn" style="justify-content:flex-start" routerLink="/cargos"><app-icon name="briefcase" [size]="16"></app-icon> Cargos y salarios</button>
+          <button class="btn" style="justify-content:flex-start" routerLink="/solicitudes"><app-icon name="inbox" [size]="16"></app-icon> Bandeja de ausencias</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

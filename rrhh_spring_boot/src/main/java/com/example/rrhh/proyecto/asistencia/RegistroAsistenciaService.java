@@ -98,8 +98,13 @@ public class RegistroAsistenciaService {
     public Page<RegistroAsistencia> findByEmpleadoAndRango(
         Long empleadoId, LocalDateTime desde, LocalDateTime hasta, int page, int size
     ) {
+        // PostgreSQL no infiere el tipo de un parámetro timestamp NULL dentro de
+        // "(:desde IS NULL OR ...)" → "no se pudo determinar el tipo del parámetro".
+        // Sustituimos los nulos por un rango amplio para que el bind tenga tipo.
+        LocalDateTime desdeF = desde != null ? desde : LocalDateTime.of(1970, 1, 1, 0, 0);
+        LocalDateTime hastaF = hasta != null ? hasta : LocalDateTime.of(2999, 12, 31, 23, 59);
         return registroRepository.findByEmpleadoIdAndRango(
-            empleadoId, desde, hasta,
+            empleadoId, desdeF, hastaF,
             PageRequest.of(page, size)
         );
     }

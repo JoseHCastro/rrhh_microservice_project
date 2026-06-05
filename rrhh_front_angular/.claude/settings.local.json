@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(ng version *)",
+      "PowerShell(& \"C:\\\\Users\\\\LEGION\\\\Desktop\\\\code-prueba\\\\scaffold.ps1\")"
+    ]
+  }
+}

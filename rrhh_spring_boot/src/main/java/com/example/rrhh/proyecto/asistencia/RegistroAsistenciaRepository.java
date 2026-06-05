@@ -19,12 +19,15 @@ public interface RegistroAsistenciaRepository extends JpaRepository<RegistroAsis
         Empleado empleado, LocalDateTime desde
     );
 
+    // NOTA: no usamos "(:desde IS NULL OR ...)" porque PostgreSQL no puede inferir
+    // el tipo de un parámetro timestamp dentro de "$x IS NULL" (sí lo hace con Long).
+    // El servicio garantiza desde/hasta no nulos (rango amplio por defecto).
     @Query("""
         SELECT r FROM RegistroAsistencia r
         JOIN FETCH r.empleado e
         WHERE (:empleadoId IS NULL OR e.id = :empleadoId)
-          AND (:desde IS NULL OR r.horaEntrada >= :desde)
-          AND (:hasta IS NULL OR r.horaEntrada <= :hasta)
+          AND r.horaEntrada >= :desde
+          AND r.horaEntrada <= :hasta
         ORDER BY r.horaEntrada DESC
     """)
     Page<RegistroAsistencia> findByEmpleadoIdAndRango(

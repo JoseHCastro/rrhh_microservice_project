@@ -1,0 +1,118 @@
+<div class="cnt">
+  <div class="loadc" *ngIf="loading"><div class="spin"></div></div>
+
+  <div class="es" *ngIf="error && !loading">
+    <div class="esic cr2"><app-icon name="alert" [size]="24"></app-icon></div>
+    <h4>No se pudo cargar el empleado</h4>
+    <p>{{ error }}</p>
+    <button class="btn" (click)="back()"><app-icon name="arrowLeft" [size]="15"></app-icon> Volver</button>
+  </div>
+
+  <ng-container *ngIf="empleado as e">
+    <div class="ph">
+      <div>
+        <div class="crumb">
+          Inicio <span class="sl">/</span>
+          <a class="lnk" (click)="back()" style="cursor:pointer">Empleados</a>
+          <span class="sl">/</span> <b>{{ e.nombreCompleto }}</b>
+        </div>
+        <h1>{{ e.nombreCompleto }}</h1>
+      </div>
+      <div class="pha">
+        <button class="btn" (click)="back()"><app-icon name="arrowLeft" [size]="16"></app-icon><span>Volver</span></button>
+        <button class="btn dan" *ngIf="e.estado === EstadoEmpleado.ACTIVO" (click)="desactivar()">
+          <app-icon name="trash" [size]="16"></app-icon><span>Desactivar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tarjeta de perfil -->
+    <div class="pcard">
+      <div class="pav" style="background:var(--brand)">{{ initials() }}</div>
+      <div style="flex:1">
+        <h2>{{ e.nombreCompleto }}</h2>
+        <div class="pdept">{{ e.cargo?.nombre || '—' }} · {{ e.departamento?.nombre || '—' }}</div>
+        <div class="ptags">
+          <span class="bst" [class.bok]="e.estado === EstadoEmpleado.ACTIVO" [class.bsl]="e.estado !== EstadoEmpleado.ACTIVO">
+            <span class="bd2"></span>{{ e.estado }}
+          </span>
+          <span class="bst bin" *ngIf="e.cargo"><span class="bd2"></span>{{ e.cargo.salarioPorHora | currency: 'USD' }}/h</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab" [class.on]="tab === 'info'" (click)="setTab('info')">Información</button>
+        <button class="tab" [class.on]="tab === 'asistencia'" (click)="setTab('asistencia')">Asistencia</button>
+        <button class="tab" [class.on]="tab === 'preplanillas'" (click)="setTab('preplanillas')">Preplanillas</button>
+        <button class="tab" [class.on]="tab === 'solicitudes'" (click)="setTab('solicitudes')">Ausencias</button>
+      </div>
+
+      <!-- INFO -->
+      <div *ngIf="tab === 'info'" style="padding:18px">
+        <div class="igrid">
+          <div class="iit"><div class="il">Carnet</div><div class="iv">{{ e.carnetIdentidad || '—' }}</div></div>
+          <div class="iit"><div class="il">Teléfono</div><div class="iv">{{ e.telefono || '—' }}</div></div>
+          <div class="iit"><div class="il">Contratación</div><div class="iv">{{ e.fechaContratacion | date: 'dd MMM y' }}</div></div>
+          <div class="iit"><div class="il">Horario</div><div class="iv">{{ e.horaEntrada ? (e.horaEntrada.slice(0,5) + ' – ' + (e.horaSalida || '').slice(0,5)) : '—' }}</div></div>
+          <div class="iit"><div class="il">Supervisor</div><div class="iv">{{ e.supervisor?.nombreCompleto || '—' }}</div></div>
+          <div class="iit"><div class="il">Salario/hora</div><div class="iv">{{ e.cargo ? (e.cargo.salarioPorHora | currency: 'USD') : '—' }}</div></div>
+        </div>
+      </div>
+
+      <!-- ASISTENCIA -->
+      <div *ngIf="tab === 'asistencia'" class="tw">
+        <table>
+          <thead><tr><th>Entrada</th><th>Salida</th><th>Ubicación</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of asistencia">
+              <td class="mn">{{ r.horaEntrada | date: 'dd MMM, HH:mm' }}</td>
+              <td class="mn">{{ r.horaSalida ? (r.horaSalida | date: 'HH:mm') : '—' }}</td>
+              <td class="mn" style="font-size:11px">{{ r.ubicacionGps || '—' }}</td>
+              <td><span class="bst bin"><span class="bd2"></span>{{ r.estado }}</span></td>
+            </tr>
+            <tr *ngIf="asistencia.length === 0"><td colspan="4"><div class="es"><h4>Sin marcaciones</h4></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PREPLANILLAS -->
+      <div *ngIf="tab === 'preplanillas'" class="tw">
+        <table>
+          <thead><tr><th>Período</th><th>Días</th><th>Faltas</th><th>Retrasos</th><th>H. Extra</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let p of preplanillas">
+              <td class="mn">{{ p.periodo }}</td>
+              <td class="mn">{{ p.diasTrabajados }}</td>
+              <td class="mn">{{ p.faltas }}</td>
+              <td class="mn">{{ p.retrasos }}</td>
+              <td class="mn">{{ p.horasExtra }}h</td>
+            </tr>
+            <tr *ngIf="preplanillas.length === 0"><td colspan="5"><div class="es"><h4>Sin preplanillas</h4></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SOLICITUDES -->
+      <div *ngIf="tab === 'solicitudes'" class="tw">
+        <table>
+          <thead><tr><th>Tipo</th><th>Inicio</th><th>Fin</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let s of solicitudes">
+              <td class="mt">{{ s.tipoAusencia.nombre }}</td>
+              <td class="mn">{{ s.fechaInicio | date: 'dd MMM y' }}</td>
+              <td class="mn">{{ s.fechaFin | date: 'dd MMM y' }}</td>
+              <td>
+                <span class="bst" [class.bok]="s.estado === 'APROBADA'" [class.bwn]="s.estado === 'PENDIENTE'" [class.bbd]="s.estado === 'RECHAZADA'">
+                  <span class="bd2"></span>{{ s.estado }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="solicitudes.length === 0"><td colspan="4"><div class="es"><h4>Sin solicitudes</h4></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+</div>

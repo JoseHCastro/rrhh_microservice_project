@@ -25,6 +25,18 @@ public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
         Pageable pageable
     );
 
+    // Carga un empleado con sus relaciones (departamento, cargo, supervisor) en 1 query.
+    // Necesario porque open-in-view=false: las asociaciones LAZY no se pueden resolver
+    // durante la serialización GraphQL (fuera de la transacción) si no se traen aquí.
+    @Query("""
+        SELECT e FROM Empleado e
+        JOIN FETCH e.departamento d
+        JOIN FETCH e.cargo c
+        LEFT JOIN FETCH e.supervisor s
+        WHERE e.id = :id
+    """)
+    Optional<Empleado> findByIdWithRelations(@Param("id") Long id);
+
     Optional<Empleado> findByCarnetIdentidad(String carnetIdentidad);
 
     boolean existsByCarnetIdentidad(String carnetIdentidad);
