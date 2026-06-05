@@ -5,7 +5,8 @@ from database import engine, Base
 from graphql_schema.schema import schema
 
 # Initialize database tables
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
+
 
 graphql_app = GraphQLRouter(schema)
 
