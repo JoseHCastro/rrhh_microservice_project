@@ -18,16 +18,35 @@ class Mutation:
         tipo: str
     ) -> RegistroResponse:
         
-        # MOCK LIVENESS & FACE MATCH (CU-03 & CU-04)
-        is_live = True
-        is_match = True
+        import base64
+        from services.liveness_service import check_liveness
+
+        # LIVENESS DETECTION (CU-03)
+        try:
+            # Eliminar el encabezado "data:image/jpeg;base64," si viene del frontend
+            if "," in foto_base64:
+                foto_base64_data = foto_base64.split(",")[1]
+            else:
+                foto_base64_data = foto_base64
+            
+            image_bytes = base64.b64decode(foto_base64_data)
+        except Exception as e:
+            return RegistroResponse(
+                success=False,
+                message=f"Error al decodificar la imagen: {str(e)}",
+                marcacion=None
+            )
+
+        is_live, liveness_score = check_liveness(image_bytes)
 
         if not is_live:
             return RegistroResponse(
                 success=False,
-                message="Prueba de vida fallida. Intento de spoofing detectado.",
+                message=f"Prueba de vida fallida (Score: {liveness_score:.2f}). Intento de spoofing detectado.",
                 marcacion=None
             )
+
+        # MOCK FACE MATCH (CU-04)
             
         if not is_match:
             return RegistroResponse(

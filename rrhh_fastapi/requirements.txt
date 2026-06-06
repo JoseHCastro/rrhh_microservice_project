@@ -22,3 +22,6 @@ sqlalchemy
 psycopg2-binary
 python-multipart
 boto3
+onnxruntime
+Pillow
+numpy
