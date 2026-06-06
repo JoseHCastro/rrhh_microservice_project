@@ -1,0 +1,175 @@
+{
+  "info": {
+    "name": "RRHH Módulo 3 — Seguridad, Archivos, Automatización",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "rrhh-modulo3-collection",
+    "description": "Endpoints del backend NestJS del módulo 3. Requiere un JWT obtenido del login en rrhh_spring_boot (`POST :8080/api/v1/auth/login` con admin/password123)."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "graphqlUrl", "value": "http://localhost:3000/graphql" },
+    { "key": "accessToken", "value": "PEGA-EL-JWT-DE-SPRING-BOOT-AQUI" },
+    { "key": "webhookSecret", "value": "local-dev-secret-cambiar" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}" }]
+  },
+  "item": [
+    {
+      "name": "0 — Login Spring Boot (obtener JWT)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "http://localhost:8080/api/v1/auth/login", "host": ["http://localhost:8080/api/v1/auth/login"] },
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}" },
+        "description": "Devuelve accessToken — copialo en la variable de colección `accessToken`."
+      }
+    },
+    {
+      "name": "1 — Privilegios: listar todos",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { privilegios { id codigo nombre modulo } }\"\n}" }
+      }
+    },
+    {
+      "name": "2 — Grupos: listar con sus privilegios",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { grupos { id nombre descripcion activo totalUsuarios privilegios { codigo nombre } } }\"\n}" }
+      }
+    },
+    {
+      "name": "3 — Mis privilegios (usuario actual)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { misPrivilegios }\"\n}" }
+      }
+    },
+    {
+      "name": "4 — Asignar usuario a grupo",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation { asignarUsuarioAGrupo(usuarioId: 1, grupoId: 2) { id nombre totalUsuarios } }\"\n}" }
+      }
+    },
+    {
+      "name": "5 — Iniciar subida de archivo (presigned URL)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"mutation Subir($input: IniciarSubidaArchivoInput!) { iniciarSubidaArchivo(input: $input) { archivo { id s3Key } presignedUrl expiresInSeconds } }\",\n  \"variables\": {\n    \"input\": {\n      \"nombre\": \"Contrato Juan Perez\",\n      \"categoria\": \"CONTRATO\",\n      \"contentType\": \"application/pdf\",\n      \"empleadoId\": 5,\n      \"privilegioLecturaCodigo\": \"ARCHIVO_LEER_CONTRATO\",\n      \"privilegioDescargaCodigo\": \"ARCHIVO_DESCARGAR_CONTRATO\"\n    }\n  }\n}"
+        },
+        "description": "Devuelve presignedUrl. Subir el binario con `curl -X PUT --data-binary @contrato.pdf '<presignedUrl>'`."
+      }
+    },
+    {
+      "name": "6 — Confirmar subida",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation { confirmarSubidaArchivo(input: { archivoId: 1, tamanioBytes: 123456 }) { id estado hashSha256 } }\"\n}" }
+      }
+    },
+    {
+      "name": "7 — Listar archivos",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { archivos(filtros: { categoria: CONTRATO, page: 0, size: 20 }) { content { id nombre categoria estado empleadoId privilegioDescargaCodigo } pageInfo { totalElements totalPages hasNext } } }\"\n}" }
+      }
+    },
+    {
+      "name": "8 — URL de descarga (audit DynamoDB)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { urlDescargaArchivo(id: 1) }\"\n}" }
+      }
+    },
+    {
+      "name": "9 — Bitácora por archivo (GSI1)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { bitacoraPorArchivo(archivoId: 1, limit: 50) { timestamp usuarioId accion resultado ipOrigen motivoDenegacion } }\"\n}" }
+      }
+    },
+    {
+      "name": "10 — Bitácora por usuario (PK)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { bitacoraPorUsuario(usuarioId: 1, limit: 50) { timestamp archivoId: documentoS3Id accion resultado } }\"\n}" }
+      }
+    },
+    {
+      "name": "11 — Registrar canal Telegram de empleado",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation { registrarCanalEmpleado(input: { empleadoId: 5, tipoCanal: TELEGRAM, identificador: \\\"123456789\\\", verificado: true }) { id empleadoId tipoCanal identificador } }\"\n}" }
+      }
+    },
+    {
+      "name": "12 — Webhook n8n: simular justificación (sin JWT, con secret)",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-N8N-Webhook-Secret", "value": "{{webhookSecret}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/v3/webhooks/justificacion-ausencia", "host": ["{{baseUrl}}"], "path": ["api", "v3", "webhooks", "justificacion-ausencia"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipoCanal\": \"TELEGRAM\",\n  \"identificadorCanal\": \"123456789\",\n  \"mensaje\": \"Estoy enfermo, adjunto mi baja médica\",\n  \"filename\": \"baja-medica.pdf\",\n  \"contentType\": \"application/pdf\",\n  \"archivoBase64\": \"JVBERi0xLjQK...REEMPLAZAR-CON-BASE64-REAL...\"\n}"
+        }
+      }
+    },
+    {
+      "name": "13 — Listar justificaciones pendientes",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { justificacionesAusencia(filtros: { estado: PENDIENTE }) { id empleadoId tipoCanal mensajeOriginal archivoId jefeUsuarioId createdAt } }\"\n}" }
+      }
+    },
+    {
+      "name": "14 — Aprobar justificación",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{graphqlUrl}}", "host": ["{{graphqlUrl}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation { aprobarJustificacionAusencia(input: { id: 1, comentario: \\\"Aprobado por presentar baja médica\\\" }) { id estado resolvedAt comentarioJefe } }\"\n}" }
+      }
+    },
+    {
+      "name": "15 — Healthcheck (público)",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/v3/webhooks/health", "host": ["{{baseUrl}}"], "path": ["api", "v3", "webhooks", "health"] }
+      }
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "name": "Justificación de Ausencia (Telegram → NestJS → Gmail)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "1",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": { "telegramApi": { "id": "REEMPLAZAR", "name": "Bot RRHH" } },
+      "notes": "Configura el bot vía @BotFather y pega el token aquí. El bot debe estar agregado al chat del empleado."
+    },
+    {
+      "parameters": {
+        "functionCode": "// Convierte el mensaje de Telegram al payload que espera NestJS.\n// Si hay archivo adjunto (document/photo), lo descarga y codifica en base64.\nconst msg = items[0].json.message;\nconst chatId = String(msg.chat.id);\nconst text = msg.text || msg.caption || '';\n\nlet archivoBase64 = null;\nlet filename = null;\nlet contentType = null;\n\n// El nodo Telegram puede entregar el archivo via $binary; aquí dejamos el hueco listo.\nif ($binary && $binary.data) {\n  archivoBase64 = $binary.data.data;\n  filename = $binary.data.fileName || 'adjunto';\n  contentType = $binary.data.mimeType || 'application/octet-stream';\n}\n\nreturn [{\n  json: {\n    tipoCanal: 'TELEGRAM',\n    identificadorCanal: chatId,\n    mensaje: text,\n    archivoBase64,\n    filename,\n    contentType\n  }\n}];"
+      },
+      "id": "2",
+      "name": "Mapear Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://rrhh_nest:3000/api/v3/webhooks/justificacion-ausencia",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "X-N8N-Webhook-Secret", "value": "={{$env.N8N_WEBHOOK_SECRET}}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": { "response": { "response": { "fullResponse": false } } }
+      },
+      "id": "3",
+      "name": "POST a NestJS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 300],
+      "notes": "El secret X-N8N-Webhook-Secret debe coincidir con N8N_WEBHOOK_SECRET del .env de rrhh_nest."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{$json.jefeUsername}}", "operation": "isNotEmpty" }
+          ]
+        }
+      },
+      "id": "4",
+      "name": "¿Jefe encontrado?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "rrhh-bot@empresa.com",
+        "toEmail": "={{$json.jefeUsername}}@empresa.com",
+        "subject": "Nueva justificación de {{$json.empleadoNombreCompleto}}",
+        "emailFormat": "html",
+        "message": "<h2>Nueva justificación de ausencia</h2><p><strong>Empleado:</strong> {{$json.empleadoNombreCompleto}}</p><p><strong>Mensaje:</strong> {{$json.mensaje}}</p><p>Ingresá al sistema para revisarla:</p><p><a href=\"http://localhost:4200/justificaciones/{{$json.justificacionId}}\">Abrir justificación #{{$json.justificacionId}}</a></p>",
+        "options": {}
+      },
+      "id": "5",
+      "name": "Gmail al Jefe",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1140, 220],
+      "credentials": { "gmailOAuth2": { "id": "REEMPLAZAR", "name": "Gmail RRHH" } },
+      "notes": "Reemplazá fromEmail y la lógica de toEmail según tu mapeo username → email real."
+    },
+    {
+      "parameters": {
+        "chatId": "={{$node[\"Telegram Trigger\"].json.message.chat.id}}",
+        "text": "✅ Recibimos tu justificación. Tu jefe la revisará en breve.",
+        "additionalFields": {}
+      },
+      "id": "6",
+      "name": "Responder al Empleado",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1140, 400],
+      "credentials": { "telegramApi": { "id": "REEMPLAZAR", "name": "Bot RRHH" } }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": { "main": [[{ "node": "Mapear Payload", "type": "main", "index": 0 }]] },
+    "Mapear Payload": { "main": [[{ "node": "POST a NestJS", "type": "main", "index": 0 }]] },
+    "POST a NestJS": { "main": [[{ "node": "¿Jefe encontrado?", "type": "main", "index": 0 }]] },
+    "¿Jefe encontrado?": {
+      "main": [
+        [{ "node": "Gmail al Jefe", "type": "main", "index": 0 }],
+        [{ "node": "Responder al Empleado", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gmail al Jefe": { "main": [[{ "node": "Responder al Empleado", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+}

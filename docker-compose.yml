@@ -18,9 +18,44 @@ services:
     container_name: rrhh_dynamodb
     ports:
       - "8000:8000"
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    networks:
+      - rrhh_network
+
+  # ══════════ Módulo 3: MinIO (S3-compatible local) ══════════
+  minio:
+    image: minio/minio:latest
+    container_name: rrhh_minio
+    ports:
+      - "9000:9000"   # API S3
+      - "9001:9001"   # Consola web
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     volumes:
-      - dynamodb_data:/home/dynamodblocal/data
+      - minio_data:/data
+    networks:
+      - rrhh_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Crea el bucket `rrhh-archivos-dev` al levantar (one-shot)
+  minio_init:
+    image: minio/mc:latest
+    container_name: rrhh_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin &&
+      mc mb -p local/rrhh-archivos-dev || true;
+      exit 0;
+      "
     networks:
       - rrhh_network
 
@@ -31,9 +66,8 @@ services:
     container_name: rrhh_nest
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
+    env_file:
+      - ./rrhh_nest/.env
     volumes:
       - ./rrhh_nest:/usr/src/app
       - /usr/src/app/node_modules
@@ -43,6 +77,7 @@ services:
     depends_on:
       - postgres
       - dynamodb
+      - minio
 
   rrhh_fastapi:
     build:
@@ -93,6 +128,43 @@ services:
     networks:
       - rrhh_network
 
+  # ══════════ Módulo 3: n8n (Workflow Automation 24/7) ══════════
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: rrhh_n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      # WEBHOOK_URL se setea con la URL pública de cloudflared (ver más abajo).
+      # En local sin túnel queda http://localhost:5678/; al usar Telegram, se
+      # reemplaza por la URL https://xxxx.trycloudflare.com que imprime cloudflared.
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=America/Tegucigalpa
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin
+      - N8N_WEBHOOK_SECRET=local-dev-secret-cambiar
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - rrhh_network
+    depends_on:
+      - rrhh_nest
+
+  # Túnel HTTPS público para n8n (reemplaza al --tunnel que n8n 2.x eliminó).
+  # Gratis, sin cuenta: imprime una URL https://xxxx.trycloudflare.com en sus logs.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: rrhh_cloudflared
+    command: tunnel --no-autoupdate --url http://n8n:5678
+    networks:
+      - rrhh_network
+    depends_on:
+      - n8n
+
 networks:
   rrhh_network:
     driver: bridge
@@ -101,3 +173,5 @@ volumes:
   postgres_data:
   dynamodb_data:
   spring_m2:
+  minio_data:
+  n8n_data:

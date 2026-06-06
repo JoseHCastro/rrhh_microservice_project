@@ -1,0 +1,315 @@
+// Prisma schema — Módulo 3 (Seguridad, Archivos, Automatización)
+//
+// IMPORTANTE: Este servicio posee SOLO el schema `seguridad`.
+// Las tablas `public.usuarios` y `public.empleados` son OWNED por Spring Boot
+// (Flyway). Aquí solo las leemos para FK lógicas — NO se generan migraciones
+// que las modifiquen. Por eso usamos vistas readonly via `@@map` + `@@schema`
+// y nunca corremos `prisma migrate` sobre ellas.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public", "seguridad"]
+}
+
+// ════════════════════════════════════════════════════════════════
+// SCHEMA PUBLIC — readonly (lo gestiona Spring Boot vía Flyway)
+// ════════════════════════════════════════════════════════════════
+
+/// Usuario del sistema. NO modificar — owner: Spring Boot.
+model Usuario {
+  id          BigInt  @id @default(autoincrement())
+  username    String  @unique @db.VarChar(50)
+  activo      Boolean
+  empleadoId  BigInt? @map("empleado_id")
+
+  // Roles vienen de tabla intermedia public.usuario_roles
+  roles UsuarioRol[]
+
+  // Relaciones inversas hacia el schema seguridad
+  grupos              UsuarioGrupo[]
+  archivosSubidos     Archivo[]              @relation("ArchivoSubidoPor")
+  asignacionesHechas  UsuarioGrupo[]         @relation("UsuarioGrupoAsignadoPor")
+  justificacionesJefe JustificacionAusencia[] @relation("JustificacionJefe")
+
+  @@map("usuarios")
+  @@schema("public")
+}
+
+/// Empleado. NO modificar — owner: Spring Boot.
+model Empleado {
+  id        BigInt @id @default(autoincrement())
+  nombre    String @db.VarChar(100)
+  apellido  String @db.VarChar(100)
+
+  // Relaciones inversas hacia el schema seguridad
+  archivos           Archivo[]
+  canales            CanalEmpleado[]
+  justificaciones    JustificacionAusencia[]
+
+  @@map("empleados")
+  @@schema("public")
+}
+
+/// Rol del sistema (ROLE_ADMIN, ROLE_RRHH, ROLE_SUPERVISOR, ROLE_EMPLEADO).
+/// NO modificar — owner: Spring Boot (Flyway V1).
+model Rol {
+  id      BigInt @id @default(autoincrement())
+  nombre  String @unique @db.VarChar(50)
+
+  usuarios UsuarioRol[]
+
+  @@map("roles")
+  @@schema("public")
+}
+
+/// Puente Usuario ↔ Rol. NO modificar — owner: Spring Boot.
+model UsuarioRol {
+  usuarioId BigInt @map("usuario_id")
+  rolId     BigInt @map("rol_id")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  rol     Rol     @relation(fields: [rolId], references: [id])
+
+  @@id([usuarioId, rolId])
+  @@map("usuario_roles")
+  @@schema("public")
+}
+
+// ════════════════════════════════════════════════════════════════
+// SCHEMA SEGURIDAD — owned by este servicio
+// ════════════════════════════════════════════════════════════════
+
+/// Catálogo de privilegios finos (más granular que Rol).
+/// Ej: ARCHIVO_LEER_CONTRATO, ARCHIVO_DESCARGAR_CERTIFICADO_MEDICO.
+model Privilegio {
+  id          BigInt   @id @default(autoincrement())
+  codigo      String   @unique @db.VarChar(80)
+  nombre      String   @db.VarChar(150)
+  descripcion String?  @db.VarChar(500)
+  modulo      String   @db.VarChar(50)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  grupos GrupoPrivilegio[]
+
+  @@map("privilegio")
+  @@schema("seguridad")
+}
+
+/// Grupo de seguridad. Agrupa privilegios y se asigna a usuarios.
+/// Es ortogonal a `Rol` (Rol = autorización gruesa, Grupo = fina).
+model Grupo {
+  id          BigInt   @id @default(autoincrement())
+  nombre      String   @unique @db.VarChar(100)
+  descripcion String?  @db.VarChar(500)
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  privilegios GrupoPrivilegio[]
+  usuarios    UsuarioGrupo[]
+
+  @@map("grupo")
+  @@schema("seguridad")
+}
+
+/// Tabla puente Grupo ↔ Privilegio (M:N).
+model GrupoPrivilegio {
+  grupoId      BigInt @map("grupo_id")
+  privilegioId BigInt @map("privilegio_id")
+
+  grupo      Grupo      @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+  privilegio Privilegio @relation(fields: [privilegioId], references: [id], onDelete: Cascade)
+
+  @@id([grupoId, privilegioId])
+  @@map("grupo_privilegio")
+  @@schema("seguridad")
+}
+
+/// Tabla puente Usuario ↔ Grupo (M:N).
+/// El FK a `public.usuarios` es lógico — Prisma respeta integridad.
+model UsuarioGrupo {
+  usuarioId      BigInt   @map("usuario_id")
+  grupoId        BigInt   @map("grupo_id")
+  asignadoPorId  BigInt?  @map("asignado_por_id")
+  asignadoAt     DateTime @default(now()) @map("asignado_at") @db.Timestamp(6)
+
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+  grupo       Grupo    @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+  asignadoPor Usuario? @relation("UsuarioGrupoAsignadoPor", fields: [asignadoPorId], references: [id])
+
+  @@id([usuarioId, grupoId])
+  @@map("usuario_grupo")
+  @@schema("seguridad")
+}
+
+enum CategoriaArchivo {
+  CONTRATO
+  CERTIFICADO_MEDICO
+  FOTO
+  JUSTIFICACION_AUSENCIA
+  OTRO
+
+  @@map("categoria_archivo")
+  @@schema("seguridad")
+}
+
+enum EstadoArchivo {
+  PENDIENTE_SUBIDA
+  ACTIVO
+  ELIMINADO
+
+  @@map("estado_archivo")
+  @@schema("seguridad")
+}
+
+/// Metadata de archivos almacenados en S3 / MinIO.
+/// El binario vive en S3; aquí solo viven los metadatos + control de acceso.
+model Archivo {
+  id                        BigInt           @id @default(autoincrement())
+  nombre                    String           @db.VarChar(255)
+  descripcion               String?          @db.VarChar(500)
+  categoria                 CategoriaArchivo
+  s3Key                     String           @unique @map("s3_key") @db.VarChar(500)
+  contentType               String           @map("content_type") @db.VarChar(150)
+  tamanioBytes              BigInt?          @map("tamanio_bytes")
+  hashSha256                String?          @map("hash_sha256") @db.VarChar(64)
+  empleadoId                BigInt?          @map("empleado_id")
+  privilegioLecturaCodigo   String?          @map("privilegio_lectura_codigo") @db.VarChar(80)
+  privilegioDescargaCodigo  String?          @map("privilegio_descarga_codigo") @db.VarChar(80)
+  subidoPorId               BigInt           @map("subido_por_id")
+  estado                    EstadoArchivo    @default(PENDIENTE_SUBIDA)
+  createdAt                 DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+
+  empleado        Empleado?               @relation(fields: [empleadoId], references: [id])
+  subidoPor       Usuario                 @relation("ArchivoSubidoPor", fields: [subidoPorId], references: [id])
+  justificaciones JustificacionAusencia[]
+
+  @@index([empleadoId, categoria])
+  @@index([categoria, estado])
+  @@map("archivo")
+  @@schema("seguridad")
+}
+
+enum TipoCanal {
+  TELEGRAM
+  WHATSAPP
+  EMAIL
+
+  @@map("tipo_canal")
+  @@schema("seguridad")
+}
+
+/// Código de vinculación de canal (auto-registro). El empleado lo genera tras
+/// login en la app; lo confirma desde el bot, probando que controla ambas puntas.
+/// Se guarda HASHEADO (sha256), nunca en claro. Un solo uso, expiración corta.
+model CodigoVinculacion {
+  id         BigInt    @id @default(autoincrement())
+  empleadoId BigInt    @map("empleado_id")
+  codigoHash String    @map("codigo_hash") @db.VarChar(64)
+  tipoCanal  TipoCanal @map("tipo_canal")
+  expiresAt  DateTime  @map("expires_at") @db.Timestamp(6)
+  usedAt     DateTime? @map("used_at") @db.Timestamp(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([codigoHash])
+  @@index([empleadoId, createdAt])
+  @@map("codigo_vinculacion")
+  @@schema("seguridad")
+}
+
+/// Mapeo Empleado ↔ canal externo (chat_id de Telegram, número WhatsApp, etc.).
+/// Permite a n8n resolver "el chat_id 12345 pertenece al empleado 7".
+model CanalEmpleado {
+  id           BigInt    @id @default(autoincrement())
+  empleadoId   BigInt    @map("empleado_id")
+  tipoCanal    TipoCanal @map("tipo_canal")
+  identificador String   @db.VarChar(200)
+  verificado   Boolean   @default(false)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  empleado Empleado @relation(fields: [empleadoId], references: [id])
+
+  @@unique([tipoCanal, identificador])
+  @@index([empleadoId])
+  @@map("canal_empleado")
+  @@schema("seguridad")
+}
+
+enum EstadoJustificacion {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+
+  @@map("estado_justificacion")
+  @@schema("seguridad")
+}
+
+/// Justificación de ausencia recibida por canal externo (Telegram/WhatsApp/Email).
+/// Creada por el webhook de n8n y resuelta por el jefe vía mutation o por correo.
+model JustificacionAusencia {
+  id                  BigInt              @id @default(autoincrement())
+  empleadoId          BigInt              @map("empleado_id")
+  tipoCanal           TipoCanal           @map("tipo_canal")
+  identificadorCanal  String              @map("identificador_canal") @db.VarChar(200)
+  mensajeOriginal     String?             @map("mensaje_original") @db.Text
+  archivoId           BigInt?             @map("archivo_id")
+  estado              EstadoJustificacion @default(PENDIENTE)
+  jefeUsuarioId       BigInt?             @map("jefe_usuario_id")
+  comentarioJefe      String?             @map("comentario_jefe") @db.VarChar(500)
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
+  resolvedAt          DateTime?           @map("resolved_at") @db.Timestamp(6)
+
+  // ── Análisis de IA (opt-in). Son SUGERENCIAS para el supervisor, no veredicto.
+  // `diagnosticoIa` es "lo que el certificado declara", no un diagnóstico de la IA.
+  iaAnalizado         Boolean             @default(false) @map("ia_analizado")
+  documentoValidoIa   Boolean?            @map("documento_valido_ia")
+  tipoSugeridoIa      String?             @map("tipo_sugerido_ia") @db.VarChar(60)
+  diasReposoIa        Int?                @map("dias_reposo_ia")
+  diagnosticoIa       String?             @map("diagnostico_ia") @db.VarChar(500)
+  resumenIa           String?             @map("resumen_ia") @db.Text
+  recomendacionIa     String?             @map("recomendacion_ia") @db.VarChar(20)
+  confianzaIa         Float?              @map("confianza_ia")
+  /// Motivo cuando la IA NO pudo analizar (fallo visible, no silencioso).
+  iaError             String?             @map("ia_error") @db.VarChar(500)
+
+  empleado Empleado            @relation(fields: [empleadoId], references: [id])
+  archivo  Archivo?            @relation(fields: [archivoId], references: [id])
+  jefe     Usuario?            @relation("JustificacionJefe", fields: [jefeUsuarioId], references: [id])
+  tokens   JustificacionToken[]
+
+  @@index([estado, createdAt])
+  @@index([empleadoId])
+  @@map("justificacion_ausencia")
+  @@schema("seguridad")
+}
+
+enum AccionToken {
+  APROBAR
+  RECHAZAR
+
+  @@map("accion_token")
+  @@schema("seguridad")
+}
+
+/// Token de un solo uso para aprobar/rechazar una justificación desde el correo.
+/// Se guarda HASHEADO (nunca el valor en claro). La acción va firmada dentro:
+/// un token sirve SOLO para su acción. Expira y se invalida al usarse.
+model JustificacionToken {
+  id              BigInt      @id @default(autoincrement())
+  justificacionId BigInt      @map("justificacion_id")
+  accion          AccionToken
+  tokenHash       String      @unique @map("token_hash") @db.VarChar(64)
+  expiresAt       DateTime    @map("expires_at") @db.Timestamp(6)
+  usedAt          DateTime?   @map("used_at") @db.Timestamp(6)
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
+
+  justificacion JustificacionAusencia @relation(fields: [justificacionId], references: [id], onDelete: Cascade)
+
+  @@index([justificacionId])
+  @@map("justificacion_token")
+  @@schema("seguridad")
+}
