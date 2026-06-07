@@ -86,3 +86,12 @@ desktop.ini
 **/postgres_data/
 **/dynamodb_data/
 **/data/
+
+# Database dumps (may contain real data / secrets)
+**/*dump*.sql
+rrhh_dump.sql
+
+# Local-only context & secrets (NOT for the repo)
+Documentacion contexto/
+**/Documentacion contexto/
+.claude/

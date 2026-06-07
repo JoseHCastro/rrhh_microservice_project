@@ -13,6 +13,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import { Header } from '@/components/Header';
 import { SolicitudList } from '@/components/SolicitudList';
+import { TelegramVinculacionBanner } from '@/components/TelegramVinculacionBanner';
 import { authService } from '@/services/authService';
 import { solicitudService } from '@/services/solicitudService';
 import { employeeService } from '@/services/employeeService';
@@ -100,6 +101,7 @@ export default function SolicitudesScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
+          <TelegramVinculacionBanner />
           <SolicitudList
             solicitudes={solicitudes}
             onPressSolicitud={handlePressSolicitud}
