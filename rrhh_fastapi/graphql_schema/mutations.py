@@ -85,15 +85,17 @@ class Mutation:
             # Lógica Automática de ENTRADA / SALIDA
             hoy = datetime.now().date()
             
+            from sqlalchemy import func
+            
             entrada_pendiente = db.query(RegistroAsistencia).filter(
                 RegistroAsistencia.empleado_id == empleado_id,
-                db.func.date(RegistroAsistencia.hora_entrada) == hoy,
+                func.date(RegistroAsistencia.hora_entrada) == hoy,
                 RegistroAsistencia.hora_salida.is_(None)
             ).first()
             
             entrada_completa = db.query(RegistroAsistencia).filter(
                 RegistroAsistencia.empleado_id == empleado_id,
-                db.func.date(RegistroAsistencia.hora_entrada) == hoy,
+                func.date(RegistroAsistencia.hora_entrada) == hoy,
                 RegistroAsistencia.hora_salida.is_not(None)
             ).first()
 
