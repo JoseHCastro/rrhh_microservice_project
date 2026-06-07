@@ -12,6 +12,7 @@ import { BiometricUnlock } from '@/components/BiometricUnlock';
 import { FaceScanner } from '@/components/FaceScanner';
 import { authService } from '@/services/authService';
 import { employeeService } from '@/services/employeeService';
+import { asistenciaService } from '@/services/asistenciaService';
 import { Empleado } from '@/types/employee';
 
 type Step = 'UNLOCK' | 'SCAN';
@@ -86,11 +87,13 @@ export default function AsistenciaScreen() {
     
     setIsRegistering(true);
     try {
-      // TODO: Here we will call the FastAPI GraphQL mutation
-      // await asistenciaService.registrar(employee.id, photoBase64, location.coords.latitude, location.coords.longitude);
-      
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Llamada real al servicio de asistencia en FastAPI
+      await asistenciaService.registrar(
+        employee.id, 
+        photoBase64, 
+        location.coords.latitude, 
+        location.coords.longitude
+      );
       
       Alert.alert('Éxito', 'Asistencia registrada correctamente.', [
         {

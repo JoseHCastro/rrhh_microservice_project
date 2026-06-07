@@ -50,16 +50,16 @@ export class AsistenciaService {
    * Envía el descriptor facial (array de 128 floats en JSON) a FastAPI (puerto 8001)
    * para guardarlo en la tabla reconocimiento_facial.
    */
-  enrolarRostro(empleadoId: string, descriptor: string): Observable<{ success: boolean; message: string }> {
+  enrolarRostro(empleadoId: string, fotoBase64: string): Observable<{ success: boolean; message: string }> {
     const body = {
-      query: `mutation ($empleadoId: Int!, $descriptor: String!) {
-        enrolarRostro(empleadoId: $empleadoId, descriptor: $descriptor) {
+      query: `mutation ($empleadoId: Int!, $fotoBase64: String!) {
+        enrolarRostro(empleadoId: $empleadoId, fotoBase64: $fotoBase64) {
           success
           message
           reconocimiento { id fechaRegistro }
         }
       }`,
-      variables: { empleadoId: parseInt(empleadoId, 10), descriptor }
+      variables: { empleadoId: parseInt(empleadoId, 10), fotoBase64 }
     };
     return this.http.post<any>(FASTAPI_GQL, body).pipe(
       map((res) => {

@@ -8,9 +8,10 @@
 import { Platform } from 'react-native';
 import { sessionStore } from './sessionStore';
 
-const HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+const HOST = '192.168.100.105';
 export const REST_BASE_URL = `http://${HOST}:8080/api/v1`;
 export const GRAPHQL_URL = `http://${HOST}:8080/graphql`;
+export const FASTAPI_GRAPHQL_URL = `http://${HOST}:8001/graphql`;
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export class RestError extends Error {

@@ -208,20 +208,17 @@ export class ReconocimientoComponent implements OnInit, OnDestroy {
 
     this.saving = true;
     try {
-      const det = await faceapi
-        .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
-        .withFaceLandmarks(true)
-        .withFaceDescriptor();
-
-      if (!det) {
-        this.toast.warn('No se detectó ningún rostro. Asegúrate de estar frente a la cámara.');
-        this.saving = false;
-        return;
+      // Capturar fotograma en base64
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 400;
+      canvas.height = video.videoHeight || 300;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       }
+      const fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
 
-      const descriptor = JSON.stringify(Array.from(det.descriptor));
-
-      this.service.enrolarRostro(this.empleadoId, descriptor).subscribe({
+      this.service.enrolarRostro(this.empleadoId, fotoBase64).subscribe({
         next: (res: any) => {
           this.saving = false;
           if (res.success) {
