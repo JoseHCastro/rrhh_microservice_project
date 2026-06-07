@@ -135,6 +135,23 @@ curl "https://api.telegram.org/bot<TU_TOKEN>/getWebhookInfo"
 
 ---
 
+## Atajo: `deploy.sh`
+
+El script [`deploy.sh`](./deploy.sh) automatiza los pasos 2 y 5 (build + push + levantar en la VM).
+Configúralo por variables de entorno o un `deploy.config.sh` local (gitignorado, sin secretos):
+
+```bash
+# build + push + remote-up en un solo comando
+ACR_NAME=turregistro VM_HOST=azureuser@TU-IP-PUBLICA-VM ./deploy.sh all
+
+# o por pasos
+ACR_NAME=turregistro ./deploy.sh build
+ACR_NAME=turregistro ./deploy.sh push
+VM_HOST=azureuser@TU-IP-PUBLICA-VM ./deploy.sh remote-up
+```
+
+> `remote-up` exige que el `.env` real **ya exista** en la VM (paso 4). El script no sube secretos.
+
 ## Verificación rápida
 
 - `GET http://TU-IP-PUBLICA-VM:3000/` → el Nest responde.

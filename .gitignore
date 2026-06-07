@@ -95,3 +95,6 @@ rrhh_dump.sql
 Documentacion contexto/
 **/Documentacion contexto/
 .claude/
+
+# Config local de despliegue (parametros de infra, NO versionar)
+**/deploy.config.sh
