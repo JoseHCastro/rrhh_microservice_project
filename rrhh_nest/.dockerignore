@@ -1,0 +1,15 @@
+# No copiar artefactos del host: el contenedor instala/compila lo suyo (linux).
+node_modules
+dist
+coverage
+
+# Secretos y locales
+.env
+*.log
+npm-debug.log*
+
+# Git / IDE
+.git
+.gitignore
+.vscode
+.idea

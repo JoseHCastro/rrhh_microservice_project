@@ -1,0 +1,288 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input ActualizarGrupoInput {
+  activo: Boolean
+  descripcion: String
+  nombre: String
+}
+
+input ActualizarPrivilegioInput {
+  descripcion: String
+  modulo: String
+  nombre: String
+}
+
+type Archivo {
+  categoria: CategoriaArchivo!
+  contentType: String!
+  createdAt: DateTime!
+  descripcion: String
+  empleadoId: BigInt
+  estado: EstadoArchivo!
+  hashSha256: String
+  id: BigInt!
+  nombre: String!
+  privilegioDescargaCodigo: String
+  privilegioLecturaCodigo: String
+  s3Key: String!
+  subidoPorId: BigInt!
+  tamanioBytes: BigInt
+}
+
+type ArchivoPage {
+  content: [Archivo!]!
+  pageInfo: ArchivoPageInfo!
+}
+
+type ArchivoPageInfo {
+  currentPage: Int!
+  hasNext: Boolean!
+  pageSize: Int!
+  totalElements: Int!
+  totalPages: Int!
+}
+
+"""
+The `BigInt` scalar type represents non-fractional signed whole numeric values.
+"""
+scalar BigInt
+
+type BitacoraItem {
+  accion: String!
+  documentoS3Id: BigInt
+  documentoS3Url: String
+  ipOrigen: String
+  motivoDenegacion: String
+  pk: String!
+  plataformaOrigen: String
+  resultado: String
+  sk: String!
+  timestamp: String!
+  userAgent: String
+  usuarioId: BigInt!
+}
+
+type CanalEmpleado {
+  createdAt: DateTime!
+  empleadoId: BigInt!
+  id: BigInt!
+  identificador: String!
+  tipoCanal: TipoCanal!
+  verificado: Boolean!
+}
+
+"""Categoría funcional del archivo"""
+enum CategoriaArchivo {
+  CERTIFICADO_MEDICO
+  CONTRATO
+  FOTO
+  JUSTIFICACION_AUSENCIA
+  OTRO
+}
+
+input ConfirmarSubidaArchivoInput {
+  archivoId: BigInt!
+  hashSha256: String
+  tamanioBytes: Int
+}
+
+input CrearGrupoInput {
+  descripcion: String
+  nombre: String!
+
+  """Códigos de privilegios a asignar inicialmente al grupo"""
+  privilegioCodigos: [String!]
+}
+
+input CrearPrivilegioInput {
+  codigo: String!
+  descripcion: String
+  modulo: String!
+  nombre: String!
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+"""Estado del ciclo de vida del archivo"""
+enum EstadoArchivo {
+  ACTIVO
+  ELIMINADO
+  PENDIENTE_SUBIDA
+}
+
+"""Estado de una justificación de ausencia"""
+enum EstadoJustificacion {
+  APROBADA
+  PENDIENTE
+  RECHAZADA
+}
+
+input FiltrosArchivoInput {
+  categoria: CategoriaArchivo
+  empleadoId: BigInt
+  page: Int = 0
+  size: Int = 20
+}
+
+input FiltrosJustificacionInput {
+  empleadoId: BigInt
+  estado: EstadoJustificacion
+  jefeUsuarioId: BigInt
+}
+
+type Grupo {
+  activo: Boolean!
+  createdAt: DateTime!
+  descripcion: String
+  id: BigInt!
+  nombre: String!
+  privilegios: [Privilegio!]!
+  totalUsuarios: Float!
+}
+
+input IniciarSubidaArchivoInput {
+  categoria: CategoriaArchivo!
+  contentType: String!
+  descripcion: String
+  empleadoId: BigInt
+  nombre: String!
+
+  """
+  Privilegio requerido para DESCARGAR (obtener URL S3). Si null, basta con estar autenticado.
+  """
+  privilegioDescargaCodigo: String
+
+  """
+  Privilegio requerido para LISTAR/VER este archivo. Si null, basta con estar autenticado.
+  """
+  privilegioLecturaCodigo: String
+}
+
+type JustificacionAusencia {
+  archivoId: BigInt
+  comentarioJefe: String
+  confianzaIa: Float
+  createdAt: DateTime!
+  diagnosticoIa: String
+  diasReposoIa: Int
+  documentoValidoIa: Boolean
+  empleadoId: BigInt!
+  estado: EstadoJustificacion!
+  iaAnalizado: Boolean!
+  iaError: String
+  id: BigInt!
+  identificadorCanal: String!
+  jefeUsuarioId: BigInt
+  mensajeOriginal: String
+  recomendacionIa: String
+  resolvedAt: DateTime
+  resumenIa: String
+  tipoCanal: TipoCanal!
+  tipoSugeridoIa: String
+}
+
+type MiPerfil {
+  empleadoId: BigInt
+  telegramVinculado: Boolean!
+  username: String!
+}
+
+type Mutation {
+  actualizarGrupo(id: BigInt!, input: ActualizarGrupoInput!): Grupo!
+  actualizarPrivilegio(id: BigInt!, input: ActualizarPrivilegioInput!): Privilegio!
+  aprobarJustificacionAusencia(input: ResolverJustificacionInput!): JustificacionAusencia!
+  asignarPrivilegioAGrupo(grupoId: BigInt!, privilegioCodigo: String!): Grupo!
+  asignarUsuarioAGrupo(grupoId: BigInt!, usuarioId: BigInt!): Grupo!
+  confirmarSubidaArchivo(input: ConfirmarSubidaArchivoInput!): Archivo!
+  crearGrupo(input: CrearGrupoInput!): Grupo!
+  crearPrivilegio(input: CrearPrivilegioInput!): Privilegio!
+  eliminarArchivo(borrarDeS3: Boolean = false, id: BigInt!): Boolean!
+  eliminarCanalEmpleado(id: BigInt!): Boolean!
+  eliminarGrupo(id: BigInt!): Boolean!
+  eliminarPrivilegio(id: BigInt!): Boolean!
+  iniciarSubidaArchivo(input: IniciarSubidaArchivoInput!): UrlSubidaArchivo!
+  rechazarJustificacionAusencia(input: ResolverJustificacionInput!): JustificacionAusencia!
+  registrarCanalEmpleado(input: RegistrarCanalEmpleadoInput!): CanalEmpleado!
+  removerUsuarioDeGrupo(grupoId: BigInt!, usuarioId: BigInt!): Boolean!
+  revocarPrivilegioDeGrupo(grupoId: BigInt!, privilegioCodigo: String!): Grupo!
+  verificarCanalEmpleado(id: BigInt!): CanalEmpleado!
+}
+
+type Privilegio {
+  codigo: String!
+  createdAt: DateTime!
+  descripcion: String
+  id: BigInt!
+  modulo: String!
+  nombre: String!
+}
+
+type Query {
+  archivo(id: BigInt!): Archivo!
+  archivos(filtros: FiltrosArchivoInput): ArchivoPage!
+
+  """
+  Eventos de auditoría de un archivo (query por GSI1 = DOC#id). Quién accedió, cuándo.
+  """
+  bitacoraPorArchivo(archivoId: BigInt!, desde: String, hasta: String, limit: Float = 50): [BitacoraItem!]!
+
+  """
+  Eventos de auditoría de un usuario (query por PK = USER#id). Ordenado más reciente primero.
+  """
+  bitacoraPorUsuario(desde: String, hasta: String, limit: Float = 50, usuarioId: BigInt!): [BitacoraItem!]!
+  canalesDeEmpleado(empleadoId: BigInt!): [CanalEmpleado!]!
+  grupo(id: BigInt!): Grupo
+  grupos(soloActivos: Boolean = false): [Grupo!]!
+  hello: String!
+  justificacionAusencia(id: BigInt!): JustificacionAusencia!
+  justificacionesAusencia(filtros: FiltrosJustificacionInput): [JustificacionAusencia!]!
+  miPerfil: MiPerfil!
+
+  """Privilegios del usuario autenticado (computados desde sus grupos)."""
+  misPrivilegios: [String!]!
+  privilegio(id: BigInt!): Privilegio
+  privilegios(modulo: String): [Privilegio!]!
+
+  """
+  Genera una presigned URL de descarga (S3) y registra el acceso en bitácora.
+  """
+  urlDescargaArchivo(id: BigInt!): String!
+  usuariosDelGrupo(grupoId: BigInt!): [UsuarioMiembroGrupo!]!
+}
+
+input RegistrarCanalEmpleadoInput {
+  empleadoId: BigInt!
+  identificador: String!
+  tipoCanal: TipoCanal!
+  verificado: Boolean = false
+}
+
+input ResolverJustificacionInput {
+  comentario: String
+  id: BigInt!
+}
+
+"""Canal externo del empleado (Telegram/WhatsApp/Email)"""
+enum TipoCanal {
+  EMAIL
+  TELEGRAM
+  WHATSAPP
+}
+
+type UrlSubidaArchivo {
+  archivo: Archivo!
+  expiresInSeconds: Int!
+  presignedUrl: String!
+}
+
+type UsuarioMiembroGrupo {
+  asignadoAt: DateTime!
+  asignadoPorId: BigInt
+  username: String!
+  usuarioId: BigInt!
+}
