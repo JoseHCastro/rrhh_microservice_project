@@ -1,7 +1,7 @@
 import { FASTAPI_GRAPHQL_URL } from './apiClient';
 
 export const asistenciaService = {
-  registrar: async (empleadoId: number, photoBase64: string, latitud: number, longitud: number) => {
+  registrar: async (empleadoId: number, fotoBase64: string, latitud: number, longitud: number) => {
 
     const query = `
       mutation ($empleadoId: Int!, $fotoBase64: String!, $latitud: Float!, $longitud: Float!) {
@@ -25,7 +25,7 @@ export const asistenciaService = {
     `;
 
     const variables = {
-      empleadoId,
+      empleadoId: Number(empleadoId),
       fotoBase64,
       latitud,
       longitud,

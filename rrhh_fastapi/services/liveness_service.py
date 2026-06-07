@@ -43,7 +43,7 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
     
     return img_data
 
-def check_liveness(image_bytes: bytes, threshold: float = 0.85) -> tuple[bool, float]:
+def check_liveness(image_bytes: bytes, threshold: float = 0.93) -> tuple[bool, float]:
     """
     Evalúa la imagen usando el modelo ONNX para determinar si es un rostro real o un spoofing.
     
