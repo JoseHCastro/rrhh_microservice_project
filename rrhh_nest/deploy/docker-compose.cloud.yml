@@ -1,0 +1,72 @@
+# ════════════════════════════════════════════════════════════════════════════
+#  Módulo 3 — Despliegue en la nube (VM de Azure)
+#  rrhh_nest (imagen desde ACR) + n8n + cloudflared
+#
+#  ⚠️  Este archivo NO contiene secretos. Los valores sensibles viven en el
+#      archivo `.env` de la VM (ver `.env.cloud.example` como plantilla) y NUNCA
+#      se versiona. Reemplaza los placeholders TU-... antes de levantar.
+#
+#  Uso en la VM:
+#     docker compose -f docker-compose.cloud.yml --env-file .env up -d
+# ════════════════════════════════════════════════════════════════════════════
+services:
+  # ──────────── Backend NestJS (Módulo 3) ────────────
+  # La imagen se construye localmente y se sube al Azure Container Registry (ACR).
+  rrhh_nest:
+    image: TU-ACR.azurecr.io/rrhh-nest:latest
+    container_name: rrhh_nest
+    restart: unless-stopped
+    env_file:
+      - .env # ← secretos reales en la VM (NO versionado). Plantilla: .env.cloud.example
+    ports:
+      - "3000:3000"
+    networks:
+      - rrhh_network
+
+  # ──────────── n8n (automatización de workflows) ────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: rrhh_n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      # URL pública del túnel cloudflared (cambia en cada arranque del túnel rápido).
+      # Para un túnel estable, usa un Named Tunnel de Cloudflare y un dominio propio.
+      - WEBHOOK_URL=https://TU-TUNEL.trycloudflare.com/
+      - N8N_SECURE_COOKIE=false # detrás del túnel HTTPS; evita el bloqueo de cookie en HTTP interno
+      - GENERIC_TIMEZONE=America/Tegucigalpa
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=TU_USUARIO_N8N
+      - N8N_BASIC_AUTH_PASSWORD=TU_PASSWORD_N8N
+      # MISMO valor que N8N_WEBHOOK_SECRET del .env del Nest (deben coincidir).
+      - N8N_WEBHOOK_SECRET=TU_WEBHOOK_SECRET
+    volumes:
+      - n8n_data:/home/node/.n8n # ← persistencia de workflows/credenciales de n8n
+    networks:
+      - rrhh_network
+    depends_on:
+      - rrhh_nest
+
+  # ──────────── Túnel HTTPS público para n8n (cloudflared) ────────────
+  # Expone n8n en una URL https pública para que Telegram pueda llamar al webhook.
+  # El túnel "rápido" (trycloudflare) imprime la URL en sus logs: docker logs rrhh_cloudflared
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: rrhh_cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://n8n:5678
+    networks:
+      - rrhh_network
+    depends_on:
+      - n8n
+
+networks:
+  rrhh_network:
+    driver: bridge
+
+volumes:
+  n8n_data:
