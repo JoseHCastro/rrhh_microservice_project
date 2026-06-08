@@ -72,6 +72,9 @@ public class EmpleadoService {
             .horaSalida(input.horaSalida())
             .telefono(input.telefono())
             .carnetIdentidad(input.carnetIdentidad())
+            .fechaNacimiento(input.fechaNacimiento())
+            .genero(input.genero())
+            .ubicacionHogarGps(input.ubicacionHogarGps())
             .estado(EstadoEmpleado.ACTIVO)
             .build();
 
@@ -99,6 +102,9 @@ public class EmpleadoService {
         empleado.setHoraEntrada(input.horaEntrada());
         empleado.setHoraSalida(input.horaSalida());
         empleado.setTelefono(input.telefono());
+        empleado.setFechaNacimiento(input.fechaNacimiento());
+        empleado.setGenero(input.genero());
+        empleado.setUbicacionHogarGps(input.ubicacionHogarGps());
 
         return empleadoRepository.save(empleado);
     }

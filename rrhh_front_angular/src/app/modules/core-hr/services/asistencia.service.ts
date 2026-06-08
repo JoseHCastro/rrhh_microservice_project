@@ -19,6 +19,7 @@ export class AsistenciaService {
           registrosAsistencia(empleadoId: $empleadoId, page: $page, size: $size) {
             content {
               id horaEntrada horaSalida ubicacionGps estado estadoPlanilla
+              esAnomalo anomaliaScore
               empleado { id nombreCompleto }
             }
             pageInfo { totalElements totalPages currentPage pageSize hasNext }

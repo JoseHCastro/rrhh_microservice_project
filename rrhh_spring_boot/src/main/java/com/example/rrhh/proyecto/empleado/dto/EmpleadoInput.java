@@ -16,5 +16,8 @@ public record EmpleadoInput(
     @NotNull  LocalTime horaEntrada,
     @NotNull  LocalTime horaSalida,
     String telefono,
-    String carnetIdentidad
+    String carnetIdentidad,
+    LocalDate fechaNacimiento,
+    String genero,
+    String ubicacionHogarGps
 ) {}

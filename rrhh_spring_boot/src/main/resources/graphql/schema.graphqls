@@ -87,6 +87,9 @@ type Empleado {
     horaSalida: LocalTime!
     telefono: String
     carnetIdentidad: String
+    fechaNacimiento: Date
+    genero: String
+    ubicacionHogarGps: String
     # Relación bidireccional / fetch batch
     usuario: Usuario
 }
@@ -125,6 +128,8 @@ type RegistroAsistencia {
     ubicacionGps: String
     estado: EstadoAsistencia!
     estadoPlanilla: EstadoPlanilla!
+    esAnomalo: Boolean
+    anomaliaScore: Float
 }
 
 type RegistroAsistenciaPage {
@@ -184,6 +189,9 @@ input EmpleadoInput {
     horaSalida: LocalTime!
     telefono: String
     carnetIdentidad: String
+    fechaNacimiento: Date
+    genero: String
+    ubicacionHogarGps: String
 }
 
 input RegistroAsistenciaInput {

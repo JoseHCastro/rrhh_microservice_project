@@ -31,3 +31,8 @@ class EnrolamientoResponse:
     message: str
     reconocimiento: Optional[ReconocimientoType]
 
+@strawberry.type
+class RiesgoResponse:
+    empleado_id: int
+    riesgo_ausentismo: float
+    mensaje: str

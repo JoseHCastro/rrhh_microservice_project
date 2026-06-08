@@ -45,4 +45,10 @@ public class RegistroAsistencia {
     @Column(name = "estado_planilla", nullable = false, length = 20)
     @Builder.Default
     private EstadoPlanilla estadoPlanilla = EstadoPlanilla.NORMAL;
+
+    @Column(name = "es_anomalo")
+    private Boolean esAnomalo;
+
+    @Column(name = "anomalia_score", columnDefinition = "numeric")
+    private Double anomaliaScore;
 }
