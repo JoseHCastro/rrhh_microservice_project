@@ -1,6 +1,8 @@
 package com.example.rrhh.proyecto.departamento;
 
 import com.example.rrhh.shared.exception.BusinessException;
+import com.example.rrhh.proyecto.empleado.EmpleadoRepository;
+import com.example.rrhh.proyecto.empleado.Empleado;
 import com.example.rrhh.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.util.List;
 public class DepartamentoService {
 
     private final DepartamentoRepository departamentoRepository;
+    private final EmpleadoRepository empleadoRepository;
 
     @Transactional(readOnly = true)
     public List<Departamento> findAll() {
@@ -26,10 +29,19 @@ public class DepartamentoService {
     }
 
     @Transactional
-    public Departamento crear(String nombre) {
+    public Departamento crear(String nombre, String ubicacionGps, Long gerenteId) {
         if (departamentoRepository.existsByNombre(nombre)) {
             throw new BusinessException("Ya existe un departamento con nombre: " + nombre);
         }
-        return departamentoRepository.save(Departamento.builder().nombre(nombre).build());
+        Empleado gerente = null;
+        if (gerenteId != null) {
+            gerente = empleadoRepository.findById(gerenteId)
+                .orElseThrow(() -> new BusinessException("Gerente no encontrado"));
+        }
+        return departamentoRepository.save(Departamento.builder()
+                .nombre(nombre)
+                .ubicacionGps(ubicacionGps)
+                .gerente(gerente)
+                .build());
     }
 }

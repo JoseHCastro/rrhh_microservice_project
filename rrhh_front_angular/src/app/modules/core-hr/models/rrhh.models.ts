@@ -18,6 +18,7 @@ export enum EstadoAsistencia {
 export interface Departamento {
   id: string;
   nombre: string;
+  ubicacionGps?: string;
   gerente?: { id: string; nombreCompleto: string } | null;
 }
 

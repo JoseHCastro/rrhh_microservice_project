@@ -25,4 +25,7 @@ public class Departamento {
         foreignKey = @ForeignKey(name = "fk_departamento_gerente")
     )
     private Empleado gerente;
+
+    @Column(name = "ubicacion_gps")
+    private String ubicacionGps;
 }
