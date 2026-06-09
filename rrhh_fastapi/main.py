@@ -21,8 +21,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+from routers import dashboard
 
 app.include_router(graphql_app, prefix="/graphql")
+app.include_router(dashboard.router)
 
 @app.get("/")
 def read_root():
