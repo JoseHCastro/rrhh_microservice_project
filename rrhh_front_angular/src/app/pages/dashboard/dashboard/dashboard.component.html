@@ -97,5 +97,57 @@
         </div>
       </div>
     </div>
+    <!-- BI Dashboard KPIs (FastAPI + Pandas) -->
+    <div class="glo" style="margin-top: 20px;">
+      <div class="card" style="grid-column: span 2;">
+        <div class="chd">
+          <div class="chl">
+            <div class="chi ca"><app-icon name="chart" [size]="17" [stroke]="1.9"></app-icon></div>
+            <div><h3>Inteligencia de Negocios (KPIs)</h3><div class="chs">Procesado en tiempo real por FastAPI + Pandas</div></div>
+          </div>
+          
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <select class="inp" [(ngModel)]="kpiFilter" (change)="onFilterChange()" style="width: auto;">
+              <option value="historico">Histórico (Todo)</option>
+              <option value="este_ano">Este Año</option>
+              <option value="este_mes">Este Mes</option>
+              <option value="rango">Rango de fechas...</option>
+            </select>
+            
+            <ng-container *ngIf="kpiFilter === 'rango'">
+              <input type="date" class="inp" [(ngModel)]="startDate" style="width: auto;">
+              <span>-</span>
+              <input type="date" class="inp" [(ngModel)]="endDate" style="width: auto;">
+            </ng-container>
+
+            <button class="btn" (click)="loadKpis()" [disabled]="loadingKpis"><app-icon name="refresh" [size]="14"></app-icon> Aplicar</button>
+          </div>
+        </div>
+        
+        <div class="loadc" *ngIf="loadingKpis" style="min-height: 200px;"><div class="spin"></div></div>
+        
+        <div class="es" *ngIf="errorKpis && !loadingKpis">
+          <div class="esic cr2"><app-icon name="alert" [size]="24"></app-icon></div>
+          <p>{{ errorKpis }}</p>
+        </div>
+
+        <div class="cgrid" *ngIf="!loadingKpis && !errorKpis" style="padding: 20px; gap: 20px;">
+          <!-- Tasa de Ausentismo -->
+          <div style="grid-column: span 2; height: 300px; position: relative;">
+            <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
+          </div>
+
+          <!-- Gasto en Horas Extras -->
+          <div style="height: 300px; position: relative;">
+            <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" [type]="doughnutChartType"></canvas>
+          </div>
+
+          <!-- Índice de Retrasos -->
+          <div style="grid-column: span 3; height: 300px; position: relative; margin-top: 15px;">
+            <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
   </ng-container>
 </div>
