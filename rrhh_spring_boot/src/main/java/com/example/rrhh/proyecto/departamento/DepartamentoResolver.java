@@ -29,7 +29,7 @@ public class DepartamentoResolver {
 
     @MutationMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'RRHH')")
-    public Departamento crearDepartamento(@Argument String nombre) {
-        return departamentoService.crear(nombre);
+    public Departamento crearDepartamento(@Argument String nombre, @Argument String ubicacionGps, @Argument Long gerenteId) {
+        return departamentoService.crear(nombre, ubicacionGps, gerenteId);
     }
 }

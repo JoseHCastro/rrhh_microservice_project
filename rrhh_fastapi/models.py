@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, BigInteger
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, BigInteger, Text
 from sqlalchemy.sql import func
 from database import Base
 
@@ -15,3 +15,22 @@ class RegistroAsistencia(Base):
     
     # Columnas biométricas añadidas en V5
     foto_uri = Column(String(500), nullable=True)
+
+    # Columnas de Machine Learning (K-Means) añadidas en V7
+    es_anomalo = Column(Boolean, nullable=True, default=False)
+    anomalia_score = Column(Float, nullable=True)
+
+
+class ReconocimientoFacial(Base):
+    __tablename__ = "reconocimiento_facial"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    empleado_id = Column(BigInteger, nullable=False, index=True)
+    # codigo_facial existe en la tabla original (V2), ahora es opcional
+    codigo_facial = Column(String(255), nullable=True)
+    # descriptor agregado en V6: JSON array de 128 floats extraído por face-api.js
+    descriptor = Column(Text, nullable=True)
+    fecha_registro = Column(DateTime, nullable=False, server_default=func.now())
+    # activo agregado en V6 para controlar cuál embedding es el vigente
+    activo = Column(Boolean, nullable=False, default=True)
+

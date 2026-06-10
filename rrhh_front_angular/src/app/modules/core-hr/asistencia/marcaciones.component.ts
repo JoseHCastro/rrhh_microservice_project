@@ -37,6 +37,9 @@ import { RegistroAsistenciaPage } from '../models/rrhh.models';
                   <span class="bst" [class.bok]="r.estado === 'REGISTRADO'" [class.bwn]="r.estado === 'RETRASO'" [class.bbd]="r.estado === 'MARCACION_OBSERVADA'">
                     <span class="bd2"></span>{{ r.estado }}
                   </span>
+                  <span *ngIf="r.esAnomalo" class="bst bbd" style="margin-left: 8px;" title="Score de Anomalía: {{r.anomaliaScore | number:'1.2-2'}}">
+                    <span class="bd2"></span>⚠️ ANÓMALO
+                  </span>
                 </td>
               </tr>
               <tr *ngIf="(page?.content || []).length === 0"><td colspan="5"><div class="es"><div class="esic ci"><app-icon name="clock" [size]="22"></app-icon></div><h4>Sin marcaciones</h4></div></td></tr>

@@ -36,7 +36,12 @@ export const BiometricUnlock: React.FC<BiometricUnlockProps> = ({
           Coloca tu dedo en el sensor para validar tu identidad antes de marcar asistencia
         </Text>
 
-        <View style={styles.sensorContainer}>
+        <TouchableOpacity 
+          style={styles.sensorContainer}
+          onPress={onInitiateScan}
+          disabled={isScanning}
+          activeOpacity={0.7}
+        >
           <View style={[styles.circle3, { borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
             <View style={[styles.circle2, { borderColor: isDark ? '#334155' : '#CBD5E1' }]}>
               <View style={[styles.circle1, { borderColor: isDark ? '#475569' : '#94A3B8' }]}>
@@ -48,7 +53,7 @@ export const BiometricUnlock: React.FC<BiometricUnlockProps> = ({
               </View>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
         
         <Text style={[styles.hint, { color: theme.textSecondary }]}>
           — Toca el botón para iniciar —

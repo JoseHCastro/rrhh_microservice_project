@@ -17,3 +17,22 @@ class RegistroResponse:
     success: bool
     message: str
     marcacion: Optional[MarcacionType]
+
+@strawberry.type
+class ReconocimientoType:
+    id: int
+    empleado_id: int
+    fecha_registro: str
+    activo: bool
+
+@strawberry.type
+class EnrolamientoResponse:
+    success: bool
+    message: str
+    reconocimiento: Optional[ReconocimientoType]
+
+@strawberry.type
+class RiesgoResponse:
+    empleado_id: int
+    riesgo_ausentismo: float
+    mensaje: str

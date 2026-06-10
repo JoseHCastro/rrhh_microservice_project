@@ -12,4 +12,6 @@ export const environment = {
   // En la nube sería la URL pública del túnel cloudflared, p.ej.
   // 'https://xxxx.trycloudflare.com' (ojo: esa URL cambia en cada arranque del túnel).
   nestUrl: 'http://localhost:3000',
+  // FastAPI (Módulo 1, Jose): endpoint GraphQL público del servicio de asistencia/ML.
+  fastapiGql: 'https://hr-fastapi.duckdns.org/graphql',
 };

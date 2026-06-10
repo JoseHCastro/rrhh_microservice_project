@@ -64,6 +64,7 @@ type UsuarioRol {
 type Departamento {
     id: ID!
     nombre: String!
+    ubicacionGps: String
     gerente: Empleado
 }
 
@@ -87,6 +88,9 @@ type Empleado {
     horaSalida: LocalTime!
     telefono: String
     carnetIdentidad: String
+    fechaNacimiento: Date
+    genero: String
+    ubicacionHogarGps: String
     # Relación bidireccional / fetch batch
     usuario: Usuario
 }
@@ -125,6 +129,8 @@ type RegistroAsistencia {
     ubicacionGps: String
     estado: EstadoAsistencia!
     estadoPlanilla: EstadoPlanilla!
+    esAnomalo: Boolean
+    anomaliaScore: Float
 }
 
 type RegistroAsistenciaPage {
@@ -184,6 +190,9 @@ input EmpleadoInput {
     horaSalida: LocalTime!
     telefono: String
     carnetIdentidad: String
+    fechaNacimiento: Date
+    genero: String
+    ubicacionHogarGps: String
 }
 
 input RegistroAsistenciaInput {
@@ -244,7 +253,7 @@ type Mutation {
     desactivarEmpleado(id: ID!): Boolean!
 
     # Departamentos
-    crearDepartamento(nombre: String!): Departamento!
+    crearDepartamento(nombre: String!, ubicacionGps: String, gerenteId: ID): Departamento!
 
     # Asistencia e IoT
     cambiarEstadoSistema(estado: EstadoSistema!): SistemaConfig!

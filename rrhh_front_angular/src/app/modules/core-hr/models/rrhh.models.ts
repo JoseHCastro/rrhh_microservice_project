@@ -18,6 +18,7 @@ export enum EstadoAsistencia {
 export interface Departamento {
   id: string;
   nombre: string;
+  ubicacionGps?: string;
   gerente?: { id: string; nombreCompleto: string } | null;
 }
 
@@ -69,6 +70,9 @@ export interface EmpleadoInput {
   horaSalida: string;
   telefono?: string | null;
   carnetIdentidad?: string | null;
+  fechaNacimiento?: string | null;
+  genero?: string | null;
+  ubicacionHogarGps?: string | null;
 }
 
 export interface RegistroAsistencia {
@@ -78,6 +82,8 @@ export interface RegistroAsistencia {
   ubicacionGps?: string | null;
   estado: EstadoAsistencia;
   estadoPlanilla?: string;
+  esAnomalo?: boolean;
+  anomaliaScore?: number;
   empleado?: { id: string; nombreCompleto: string };
 }
 
