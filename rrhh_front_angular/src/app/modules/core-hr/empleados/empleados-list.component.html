@@ -32,7 +32,9 @@
     </div>
 
     <!-- Estados -->
-    <div class="loadc" *ngIf="loading"><div class="spin"></div></div>
+    <div class="loadc" *ngIf="loading">
+      <div class="spin"></div>
+    </div>
 
     <div class="es" *ngIf="error && !loading">
       <div class="esic cr2"><app-icon name="alert" [size]="24"></app-icon></div>
@@ -50,29 +52,43 @@
             <th>Contratación</th>
             <th>Horario</th>
             <th>Estado</th>
-            <th></th>
+            <th>Riesgo (ML)</th>
+            <th style="width:50px"></th>
           </tr>
         </thead>
         <tbody>
-          <tr class="cr" *ngFor="let e of rows" (click)="open(e)">
+          <tr *ngFor="let e of rows" class="cr" (click)="open(e)">
             <td>
               <div class="cs">
-                <div class="sic" style="background:var(--brand)">{{ initials(e) }}</div>
+                <div class="sic" style="background:linear-gradient(145deg,#475569,#1e293b)">{{ initials(e) }}</div>
                 <div>
                   <div class="sn">{{ e.nombreCompleto }}</div>
-                  <div class="ss">{{ e.cargo?.nombre }}</div>
+                  <div class="ss">{{ e.cargo?.nombre || 'Sin cargo' }}</div>
                 </div>
               </div>
             </td>
             <td class="mt">{{ e.departamento?.nombre || '—' }}</td>
             <td class="mn">{{ e.fechaContratacion | date: 'dd MMM y' }}</td>
-            <td class="mn">{{ e.horaEntrada ? (e.horaEntrada.slice(0,5) + ' – ' + (e.horaSalida || '').slice(0,5)) : '—' }}</td>
+            <td class="mn">{{ e.horaEntrada ? (e.horaEntrada.slice(0,5) + ' – ' + (e.horaSalida || '').slice(0,5)) : '—'
+              }}</td>
             <td>
-              <span class="bst" [class.bok]="e.estado === EstadoEmpleado.ACTIVO" [class.bsl]="e.estado !== EstadoEmpleado.ACTIVO">
+              <span class="bst" [class.bok]="e.estado === EstadoEmpleado.ACTIVO"
+                [class.bsl]="e.estado !== EstadoEmpleado.ACTIVO">
                 <span class="bd2"></span>{{ e.estado }}
               </span>
             </td>
-            <td><button class="ra"><app-icon name="chevronRight" [size]="15" [stroke]="2"></app-icon></button></td>
+            <td>
+              <span *ngIf="riesgos[e.id]" class="bst" 
+                    [class.bbd]="riesgos[e.id].riesgo > 0.6" 
+                    [class.bwn]="riesgos[e.id].riesgo > 0.3 && riesgos[e.id].riesgo <= 0.6"
+                    [class.bok]="riesgos[e.id].riesgo <= 0.3"
+                    [title]="riesgos[e.id].mensaje">
+                <span class="bd2"></span>{{ (riesgos[e.id].riesgo * 100) | number:'1.0-0' }}%
+              </span>
+              <span *ngIf="!riesgos[e.id]" class="ss">Calculando...</span>
+            </td>
+            <td><button class="ra" (click)="open(e); $event.stopPropagation()"><app-icon name="chevron-right"
+                  [size]="15"></app-icon></button></td>
           </tr>
           <tr *ngIf="rows.length === 0">
             <td colspan="6">
@@ -99,11 +115,13 @@
 
 <!-- Modal: nuevo empleado -->
 <app-modal [open]="modalOpen" title="Nuevo Empleado" [okLabel]="saving ? 'Guardando…' : 'Crear empleado'"
-           (close)="modalOpen = false" (confirm)="save()">
+  (close)="modalOpen = false" (confirm)="save()">
   <form [formGroup]="form">
     <div class="fr">
-      <div class="ff"><label>Nombre *</label><input type="text" formControlName="nombre" placeholder="Ej. Valeria" /></div>
-      <div class="ff"><label>Apellido *</label><input type="text" formControlName="apellido" placeholder="Ej. Mendoza" /></div>
+      <div class="ff"><label>Nombre *</label><input type="text" formControlName="nombre" placeholder="Ej. Valeria" />
+      </div>
+      <div class="ff"><label>Apellido *</label><input type="text" formControlName="apellido"
+          placeholder="Ej. Mendoza" /></div>
     </div>
     <div class="fr">
       <div class="ff">
@@ -122,15 +140,44 @@
       </div>
     </div>
     <div class="fr">
-      <div class="ff"><label>Teléfono</label><input type="text" formControlName="telefono" placeholder="70000000" /></div>
-      <div class="ff"><label>Carnet de identidad</label><input type="text" formControlName="carnetIdentidad" placeholder="7500000" /></div>
+      <div class="ff"><label>Teléfono</label><input type="text" formControlName="telefono" placeholder="70000000" />
+      </div>
+      <div class="ff"><label>Carnet de identidad</label><input type="text" formControlName="carnetIdentidad"
+          placeholder="7500000" /></div>
     </div>
     <div class="fr">
       <div class="ff"><label>Hora entrada</label><input type="time" formControlName="horaEntrada" /></div>
       <div class="ff"><label>Hora salida</label><input type="time" formControlName="horaSalida" /></div>
     </div>
+    <div class="fr">
+      <div class="ff"><label>Fecha de contratación</label><input type="date" formControlName="fechaContratacion" />
+      </div>
+      <div class="ff"><label>Fecha de Nacimiento</label><input type="date" formControlName="fechaNacimiento" /></div>
+    </div>
+    <div class="fr">
+      <div class="ff">
+        <label>Género</label>
+        <select formControlName="genero">
+          <option value="">Seleccionar…</option>
+          <option value="MASCULINO">Masculino</option>
+          <option value="FEMENINO">Femenino</option>
+          <option value="OTRO">Otro</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Ubicación Hogar (GPS)</label>
+        <input type="text" formControlName="ubicacionHogarGps" placeholder="Haz clic en el mapa..." readonly
+          style="background: var(--bg2); cursor: not-allowed;" />
+      </div>
+    </div>
+
     <div class="fr one">
-      <div class="ff"><label>Fecha de contratación</label><input type="date" formControlName="fechaContratacion" /></div>
+      <div class="ff">
+        <label>Seleccionar en el mapa</label>
+        <div id="map"
+          style="height: 200px; width: 100%; border-radius: 8px; border: 1px solid var(--border); z-index: 1;"></div>
+
+      </div>
     </div>
   </form>
 </app-modal>

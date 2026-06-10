@@ -135,6 +135,15 @@ class Mutation:
                 # Registrar SALIDA
                 marcacion = entrada_pendiente
                 marcacion.hora_salida = ahora
+            
+            # K-MEANS: Detección de Anomalías
+            try:
+                from services.ml_kmeans_service import check_attendance_anomaly
+                es_anomalo, anomalia_score = check_attendance_anomaly(db, empleado_id, marcacion)
+                marcacion.es_anomalo = es_anomalo
+                marcacion.anomalia_score = anomalia_score
+            except Exception as ml_e:
+                print(f"Error en K-Means: {ml_e}")
 
             db.commit()
             db.refresh(marcacion)

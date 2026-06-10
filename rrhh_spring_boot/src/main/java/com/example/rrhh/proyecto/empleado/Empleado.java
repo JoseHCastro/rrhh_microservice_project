@@ -68,4 +68,13 @@ public class Empleado {
 
     @Column(name = "carnet_identidad", unique = true, length = 20)
     private String carnetIdentidad;
+
+    @Column(name = "fecha_nacimiento")
+    private LocalDate fechaNacimiento;
+
+    @Column(length = 20)
+    private String genero;
+
+    @Column(name = "ubicacion_hogar_gps", length = 50)
+    private String ubicacionHogarGps;
 }

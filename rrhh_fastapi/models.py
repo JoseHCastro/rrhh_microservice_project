@@ -16,6 +16,10 @@ class RegistroAsistencia(Base):
     # Columnas biométricas añadidas en V5
     foto_uri = Column(String(500), nullable=True)
 
+    # Columnas de Machine Learning (K-Means) añadidas en V7
+    es_anomalo = Column(Boolean, nullable=True, default=False)
+    anomalia_score = Column(Float, nullable=True)
+
 
 class ReconocimientoFacial(Base):
     __tablename__ = "reconocimiento_facial"
