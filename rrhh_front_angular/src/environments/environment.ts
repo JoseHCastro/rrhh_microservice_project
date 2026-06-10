@@ -5,5 +5,5 @@ export const environment = {
   graphqlPath: '/graphql',
   loginPath: '/api/v1/auth/login',
   refreshPath: '/api/v1/auth/refresh',
-  fastapiGql: 'http://localhost:8001/graphql',
+  fastapiGql: 'https://hr-fastapi.duckdns.org/graphql',
 };

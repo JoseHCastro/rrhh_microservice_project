@@ -98,7 +98,7 @@ export class DashboardComponent implements OnInit {
   loadKpis(): void {
     this.loadingKpis = true;
     this.errorKpis = '';
-    let url = `${environment.apiUrl.replace(':8080', ':8001')}/api/dashboard/kpis`;
+    let url = `${environment.fastapiGql.replace('/graphql', '')}/api/dashboard/kpis`;
     
     // Anexar query parameters si hay rango
     if (this.startDate && this.endDate) {
