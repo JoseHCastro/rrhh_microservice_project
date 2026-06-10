@@ -16,6 +16,7 @@ import { PreplanillasComponent } from './nomina/preplanillas.component';
 import { UsuariosComponent } from './seguridad/usuarios.component';
 import { TokensComponent } from './seguridad/tokens.component';
 import { AuditoriaComponent } from './seguridad/auditoria.component';
+import { ReportesComponent } from './reportes/reportes.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { AuditoriaComponent } from './seguridad/auditoria.component';
     UsuariosComponent,
     TokensComponent,
     AuditoriaComponent,
+    ReportesComponent,
   ],
   imports: [SharedModule, FormsModule, ReactiveFormsModule, CoreHrRoutingModule],
 })
