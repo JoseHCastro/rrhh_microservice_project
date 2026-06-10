@@ -64,6 +64,7 @@ type UsuarioRol {
 type Departamento {
     id: ID!
     nombre: String!
+    ubicacionGps: String
     gerente: Empleado
 }
 
@@ -252,7 +253,7 @@ type Mutation {
     desactivarEmpleado(id: ID!): Boolean!
 
     # Departamentos
-    crearDepartamento(nombre: String!): Departamento!
+    crearDepartamento(nombre: String!, ubicacionGps: String, gerenteId: ID): Departamento!
 
     # Asistencia e IoT
     cambiarEstadoSistema(estado: EstadoSistema!): SistemaConfig!

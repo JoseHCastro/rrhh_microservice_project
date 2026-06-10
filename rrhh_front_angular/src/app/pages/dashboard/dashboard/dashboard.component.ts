@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { DashboardData, DashboardService } from '../dashboard.service';
+import { ChartConfiguration, ChartType } from 'chart.js';
+import { environment } from '../../../../environments/environment';
 
 interface DeptStat {
   nombre: string;
@@ -26,10 +29,51 @@ export class DashboardComponent implements OnInit {
 
   readonly deptColors = ['var(--brand)', 'var(--ok)', 'var(--warn)', 'var(--info)', 'var(--bad)', 'var(--brand2)'];
 
-  constructor(private dashboard: DashboardService) {}
+  // BI KPIs
+  loadingKpis = false;
+  errorKpis = '';
+  kpiFilter: 'historico' | 'este_ano' | 'este_mes' | 'rango' = 'historico';
+  startDate: string = '';
+  endDate: string = '';
+
+  public lineChartData: ChartConfiguration['data'] = { datasets: [], labels: [] };
+  public lineChartOptions: ChartConfiguration['options'] = { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Tasa de Ausentismo Histórica (%)' } } };
+  public lineChartType: ChartType = 'line';
+
+  public doughnutChartData: ChartConfiguration['data'] = { datasets: [], labels: [] };
+  public doughnutChartOptions: ChartConfiguration['options'] = { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Gasto en Horas Extras por Depto ($)' } } };
+  public doughnutChartType: ChartType = 'doughnut';
+
+  public barChartData: ChartConfiguration['data'] = { datasets: [], labels: [] };
+  public barChartOptions: ChartConfiguration['options'] = { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Índice de Retrasos por Departamento' } } };
+  public barChartType: ChartType = 'bar';
+
+  constructor(private dashboard: DashboardService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.load();
+    this.loadKpis();
+  }
+
+  onFilterChange(): void {
+    const today = new Date();
+    
+    if (this.kpiFilter === 'este_ano') {
+      this.startDate = `${today.getFullYear()}-01-01`;
+      this.endDate = `${today.getFullYear()}-12-31`;
+      this.loadKpis();
+    } else if (this.kpiFilter === 'este_mes') {
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const lastDay = new Date(year, today.getMonth() + 1, 0).getDate();
+      this.startDate = `${year}-${month}-01`;
+      this.endDate = `${year}-${month}-${lastDay}`;
+      this.loadKpis();
+    } else if (this.kpiFilter === 'historico') {
+      this.startDate = '';
+      this.endDate = '';
+      this.loadKpis();
+    }
   }
 
   load(): void {
@@ -48,6 +92,42 @@ export class DashboardComponent implements OnInit {
             ? 'Sin conexión con el backend (localhost:8080). Inicia el servicio Spring Boot.'
             : e?.message || 'Error al cargar el dashboard';
       },
+    });
+  }
+
+  loadKpis(): void {
+    this.loadingKpis = true;
+    this.errorKpis = '';
+    let url = `${environment.apiUrl.replace(':8080', ':8001')}/api/dashboard/kpis`;
+    
+    // Anexar query parameters si hay rango
+    if (this.startDate && this.endDate) {
+      url += `?start_date=${this.startDate}&end_date=${this.endDate}`;
+    }
+
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        this.lineChartData = {
+          labels: res.ausentismo.labels,
+          datasets: [{ data: res.ausentismo.data, label: 'Tasa de Ausentismo (%)', borderColor: '#42A5F5', backgroundColor: 'rgba(66, 165, 245, 0.2)', fill: true }]
+        };
+
+        this.doughnutChartData = {
+          labels: res.gasto_horas_extra.labels,
+          datasets: [{ data: res.gasto_horas_extra.data, label: 'Gasto ($)' }]
+        };
+
+        this.barChartData = {
+          labels: res.retrasos.labels,
+          datasets: [{ data: res.retrasos.data, label: 'Total Retrasos', backgroundColor: '#EF5350' }]
+        };
+        this.loadingKpis = false;
+      },
+      error: (e) => {
+        this.errorKpis = 'Error al cargar los KPIs desde FastAPI.';
+        this.loadingKpis = false;
+        console.error(e);
+      }
     });
   }
 
