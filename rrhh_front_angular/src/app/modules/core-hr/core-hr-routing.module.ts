@@ -13,6 +13,7 @@ import { PreplanillasComponent } from './nomina/preplanillas.component';
 import { UsuariosComponent } from './seguridad/usuarios.component';
 import { TokensComponent } from './seguridad/tokens.component';
 import { AuditoriaComponent } from './seguridad/auditoria.component';
+import { ReportesComponent } from './reportes/reportes.component';
 
 const routes: Routes = [
   // Organización (Core HR)
@@ -32,6 +33,7 @@ const routes: Routes = [
 
   // Nómina y Reportes
   { path: 'preplanillas', component: PreplanillasComponent },
+  { path: 'reportes', component: ReportesComponent },
 
   // Seguridad y Sistema
   { path: 'usuarios', component: UsuariosComponent },

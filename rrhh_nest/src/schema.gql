@@ -163,6 +163,11 @@ input IniciarSubidaArchivoInput {
   privilegioLecturaCodigo: String
 }
 
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
 type JustificacionAusencia {
   archivoId: BigInt
   comentarioJefe: String
@@ -236,9 +241,19 @@ type Query {
   """
   bitacoraPorUsuario(desde: String, hasta: String, limit: Float = 50, usuarioId: BigInt!): [BitacoraItem!]!
   canalesDeEmpleado(empleadoId: BigInt!): [CanalEmpleado!]!
+
+  """
+  Ejecuta uno de los 4 reportes administrativos (solo ADMIN / REPORTES_GENERAR).
+  """
+  ejecutarReporte(parametros: ReporteParametrosInput, tipo: ReporteTipo!): ReporteResultado!
   grupo(id: BigInt!): Grupo
   grupos(soloActivos: Boolean = false): [Grupo!]!
   hello: String!
+
+  """
+  La IA (Gemini, function calling) interpreta el prompt y devuelve qué reporte y parámetros eligió, SIN ejecutarlo (para confirmación previa).
+  """
+  interpretarReporte(prompt: String!): ReporteInterpretacion!
   justificacionAusencia(id: BigInt!): JustificacionAusencia!
   justificacionesAusencia(filtros: FiltrosJustificacionInput): [JustificacionAusencia!]!
   miPerfil: MiPerfil!
@@ -247,6 +262,11 @@ type Query {
   misPrivilegios: [String!]!
   privilegio(id: BigInt!): Privilegio
   privilegios(modulo: String): [Privilegio!]!
+
+  """
+  La IA redacta un párrafo de resumen a partir de los AGREGADOS del reporte (sin datos personales).
+  """
+  resumirReporte(agregados: JSON!, reporte: String!): String!
 
   """
   Genera una presigned URL de descarga (S3) y registra el acceso en bitácora.
@@ -260,6 +280,64 @@ input RegistrarCanalEmpleadoInput {
   identificador: String!
   tipoCanal: TipoCanal!
   verificado: Boolean = false
+}
+
+type ReporteInterpretacion {
+  """Explicación legible de lo que entendió la IA."""
+  explicacion: String!
+
+  """Parámetros que la IA extrajo (listos para ejecutarReporte)."""
+  parametros: JSON!
+
+  """ReporteTipo elegido (null si la IA no pudo decidir)."""
+  reporte: String
+}
+
+input ReporteParametrosInput {
+  """Accesos: bitácora por archivo (GSI)."""
+  archivoId: BigInt
+
+  """Empleados por departamento: filtra por ID de depto."""
+  departamentoId: BigInt
+
+  """
+  Empleados por departamento: nombre (o parte) del depto; el backend resuelve flexible (insensible a mayúsculas y parcial). Ignorado si se da departamentoId.
+  """
+  departamentoNombre: String
+
+  """Rango inicio (YYYY-MM-DD o ISO)."""
+  desde: String
+
+  """Asistencia: filtra por empleado."""
+  empleadoId: BigInt
+
+  """Justificaciones: PENDIENTE | APROBADA | RECHAZADA."""
+  estado: String
+
+  """Rango fin (YYYY-MM-DD o ISO)."""
+  hasta: String
+
+  """Accesos: máximo de registros (default 100)."""
+  limit: Int
+
+  """Accesos: bitácora por usuario (PK)."""
+  usuarioId: BigInt
+}
+
+type ReporteResultado {
+  agregados: JSON!
+  columnas: [String!]!
+  filas: JSON!
+  generadoEn: DateTime!
+  reporte: String!
+}
+
+"""Catálogo de reportes administrativos del Módulo 3."""
+enum ReporteTipo {
+  ACCESOS_ARCHIVOS
+  ASISTENCIA_POR_PERIODO
+  EMPLEADOS_POR_DEPARTAMENTO
+  JUSTIFICACIONES_POR_ESTADO
 }
 
 input ResolverJustificacionInput {

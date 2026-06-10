@@ -45,6 +45,10 @@ const PRIVILEGIOS = [
   { codigo: 'BITACORA_CONSULTAR', nombre: 'Consultar bitácora de accesos', modulo: 'auditoria',
     descripcion: 'Ver registros de auditoría en DynamoDB.' },
 
+  // ─── Reportes administrativos (solo ADMIN por ahora) ───
+  { codigo: 'REPORTES_GENERAR', nombre: 'Generar reportes', modulo: 'reportes',
+    descripcion: 'Ejecutar los reportes administrativos (empleados, asistencia, justificaciones, accesos).' },
+
   // ─── Justificaciones de ausencia (canal n8n) ───
   { codigo: 'JUSTIFICACION_VER_TODAS', nombre: 'Ver todas las justificaciones', modulo: 'justificaciones',
     descripcion: 'Listar justificaciones de cualquier empleado.' },
@@ -67,6 +71,7 @@ const GRUPOS = [
       'GRUPO_ASIGNAR_USUARIOS',
       'BITACORA_CONSULTAR',
       'CANAL_EMPLEADO_GESTIONAR',
+      'REPORTES_GENERAR',
     ],
   },
   {

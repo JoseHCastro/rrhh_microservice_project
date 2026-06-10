@@ -19,6 +19,7 @@ import { BitacoraModule } from './modules/bitacora/bitacora.module';
 import { CanalesModule } from './modules/canales/canales.module';
 import { JustificacionesModule } from './modules/justificaciones/justificaciones.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
+import { ReportesModule } from './modules/reportes/reportes.module';
 
 // Boilerplate original — se mantiene como prueba de que GraphQL responde.
 // Será reemplazado por los módulos de dominio en las próximas fases.
@@ -56,6 +57,7 @@ Public()(HelloResolver);
     CanalesModule,
     JustificacionesModule,
     WebhooksModule,
+    ReportesModule,
   ],
   controllers: [AppController],
   providers: [AppService, HelloResolver],

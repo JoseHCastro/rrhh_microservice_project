@@ -41,10 +41,21 @@ model Usuario {
 }
 
 /// Empleado. NO modificar — owner: Spring Boot.
+/// Los campos de depto/cargo/estado son READONLY: se mapean solo para los
+/// reportes (consultas), nunca se escriben desde este servicio.
 model Empleado {
-  id        BigInt @id @default(autoincrement())
-  nombre    String @db.VarChar(100)
-  apellido  String @db.VarChar(100)
+  id                BigInt    @id @default(autoincrement())
+  nombre            String    @db.VarChar(100)
+  apellido          String    @db.VarChar(100)
+  estado            String?   @db.VarChar(30)
+  fechaContratacion DateTime? @map("fecha_contratacion") @db.Date
+  departamentoId    BigInt?   @map("departamento_id")
+  cargoId           BigInt?   @map("cargo_id")
+
+  // Relaciones readonly hacia public (para reportes)
+  departamento Departamento?        @relation(fields: [departamentoId], references: [id])
+  cargo        Cargo?               @relation(fields: [cargoId], references: [id])
+  asistencias  RegistroAsistencia[]
 
   // Relaciones inversas hacia el schema seguridad
   archivos           Archivo[]
@@ -52,6 +63,48 @@ model Empleado {
   justificaciones    JustificacionAusencia[]
 
   @@map("empleados")
+  @@schema("public")
+}
+
+/// Departamento. NO modificar — owner: Spring Boot. Readonly para reportes.
+model Departamento {
+  id     BigInt @id @default(autoincrement())
+  nombre String @db.VarChar(100)
+
+  empleados Empleado[]
+
+  @@map("departamentos")
+  @@schema("public")
+}
+
+/// Cargo/puesto. NO modificar — owner: Spring Boot. Readonly para reportes.
+/// La columna `salario_por_hora` existe en la tabla pero se OMITE a propósito:
+/// datos de remuneración quedan FUERA del alcance de los reportes.
+model Cargo {
+  id     BigInt @id @default(autoincrement())
+  nombre String @db.VarChar(100)
+
+  empleados Empleado[]
+
+  @@map("cargos")
+  @@schema("public")
+}
+
+/// Registro de asistencia (marcaciones). Lo escribe el Módulo 1 (FastAPI).
+/// NO modificar — readonly para reportes.
+model RegistroAsistencia {
+  id             BigInt    @id @default(autoincrement())
+  empleadoId     BigInt    @map("empleado_id")
+  horaEntrada    DateTime  @map("hora_entrada") @db.Timestamp(6)
+  horaSalida     DateTime? @map("hora_salida") @db.Timestamp(6)
+  ubicacionGps   String?   @map("ubicacion_gps") @db.VarChar(255)
+  estado         String?   @db.VarChar(30)
+  estadoPlanilla String?   @map("estado_planilla") @db.VarChar(30)
+  fotoUri        String?   @map("foto_uri") @db.VarChar(500)
+
+  empleado Empleado @relation(fields: [empleadoId], references: [id])
+
+  @@map("registro_asistencia")
   @@schema("public")
 }
 
