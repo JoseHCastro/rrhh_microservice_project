@@ -11,7 +11,7 @@ export const environment = {
   refreshPath: '/api/v1/auth/refresh',
 
   // NestJS — URL pública de tu servidor NestJS en producción.
-  nestUrl: 'https://tu-nest-en-produccion.com',
+  nestUrl: 'https://tomorrow-pictures-guidelines-applicable.trycloudflare.com/graphql',
 
   // FastAPI — Servicio Biométrico e IA (DuckDNS)
   fastapiUrl: 'https://hr-fastapi.duckdns.org',

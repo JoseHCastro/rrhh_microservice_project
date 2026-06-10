@@ -1,67 +1,221 @@
-# Sistema de Gestión de Recursos Humanos (RRHH) - Frontend
+# Sistema de Gestión de Recursos Humanos (RRHH) — Frontend Angular
 
-Este repositorio contiene la aplicación cliente (frontend) para el Sistema de Gestión de Recursos Humanos (RRHH). Está desarrollado como una Single Page Application (SPA) utilizando **Angular**, proporcionando una interfaz de usuario moderna, reactiva y altamente interactiva para la administración integral del personal de la empresa.
+Aplicación cliente (**SPA**) del sistema RRHH, desarrollada con **Angular 16**. Se conecta a tres microservicios backend:
 
-## Funcionalidades Principales
+| Microservicio | Tecnología | URL de producción |
+|---|---|---|
+| Core HR & Auth | Spring Boot (AWS Elastic Beanstalk) | `https://rrhh-prod.eba-p8y8badt.us-east-2.elasticbeanstalk.com` |
+| Seguridad / Bitácora | NestJS (Cloudflare Tunnel) | `https://tomorrow-pictures-guidelines-applicable.trycloudflare.com/graphql` |
+| Asistencia / IA | FastAPI (DuckDNS) | `https://hr-fastapi.duckdns.org` |
 
-El sistema está compuesto por los siguientes módulos y funcionalidades clave:
+> ⚠️ La URL del túnel de NestJS (`trycloudflare.com`) **cambia cada vez que se reinicia el túnel**. Actualiza `nestUrl` en los environments cuando esto ocurra.
 
-- **Gestión de Empleados:** Alta, baja, modificación y consulta de la información detallada del personal de la organización.
-- **Gestión de Departamentos:** Administración de la estructura organizacional, creación de áreas y asignación de departamentos.
-- **Registro de Asistencia:** Control y seguimiento de la asistencia diaria de los empleados, gestionando entradas y salidas.
-- **Gestión de Preplanillas:** Cálculo preliminar y generación de la nómina (preplanilla) en base a la asistencia y los datos del empleado.
+---
 
-## Tecnologías y Versiones
+## Funcionalidades
 
-- **Angular:** `16.2.0` (Framework principal).
-- **Node.js:** Versión `18.x` o superior recomendada (el proyecto es compatible y ha sido probado con la versión `20.x`).
-- **NPM:** Gestor de paquetes de Node.js.
-- **Bootstrap:** `5.3.2` (Framework CSS para diseño responsivo).
-- **RxJS:** `7.8.0` (Librería para programación reactiva).
+- **Empleados** — CRUD completo del personal de la organización.
+- **Departamentos** — Estructura organizacional y asignación de áreas.
+- **Asistencia** — Control de entradas/salidas con reconocimiento facial.
+- **Preplanillas** — Cálculo preliminar de nómina basado en asistencia.
+- **Bitácora de Auditoría** — Logs de seguridad desde NestJS/DynamoDB vía GraphQL.
+- **Reportes con IA** — Generación de reportes con Gemini y exportación CSV/PDF.
 
-## Requisitos Previos
+---
 
-Asegúrate de tener instalados los siguientes componentes en tu máquina local antes de iniciar el proyecto:
+## Tecnologías
 
-1. [Node.js](https://nodejs.org/) (Versión 18 o superior).
-2. [Angular CLI](https://angular.io/cli) (Puedes instalarlo globalmente ejecutando: `npm install -g @angular/cli@16`).
+| Paquete | Versión |
+|---|---|
+| Angular | `16.2.0` |
+| Node.js | `18.x` — `20.x` |
+| Bootstrap | `5.3.2` |
+| RxJS | `7.8.0` |
+| Chart.js | `4.5.1` |
+| face-api.js | `0.22.2` |
 
-## Instrucciones para Iniciar el Proyecto
+---
 
-Sigue estos pasos para levantar el entorno de desarrollo local:
+## Requisitos previos
 
-1. **Navegar al directorio del proyecto:**
-   Abre tu terminal y ubícate en la carpeta raíz del frontend:
+1. [Node.js 18+](https://nodejs.org/) instalado.
+2. Angular CLI 16 instalado globalmente:
    ```bash
-   cd rrhh_front_angular
+   npm install -g @angular/cli@16
    ```
 
-2. **Instalar las dependencias:**
-   Descarga e instala todas las librerías necesarias ejecutando:
-   ```bash
-   npm install
-   ```
-   *(Nota: si experimentas algún problema o conflicto de versiones con paquetes de terceros, puedes probar instalando con la bandera `npm install --legacy-peer-deps`).*
+---
 
-3. **Ejecutar el servidor de desarrollo:**
-   Una vez instaladas las dependencias, inicia la aplicación localmente con el comando:
-   ```bash
-   npm start
-   ```
-   *(Este comando ejecuta internamente `ng serve`).*
+## 🖥️ Inicio en local (desarrollo)
 
-4. **Acceder a la aplicación:**
-   Cuando la compilación finalice exitosamente, abre tu navegador web preferido y dirígete a:
-   [http://localhost:4200/](http://localhost:4200/)
-
-   El servidor cuenta con *Live Reload*, por lo que la aplicación se recargará automáticamente en el navegador cada vez que guardes cambios en el código fuente.
-
-## Construcción para Producción (Build)
-
-Si necesitas generar los archivos optimizados para desplegar la aplicación en un entorno de producción, ejecuta:
+### 1. Instalar dependencias
 
 ```bash
-npm run build
+cd rrhh_front_angular
+npm install
 ```
 
-Los artefactos finales compilados, minificados y listos para producción se generarán dentro del directorio `dist/`.
+> Si hay conflictos de versiones entre paquetes usa: `npm install --legacy-peer-deps`
+
+### 2. Variables de entorno para desarrollo
+
+El archivo [`src/environments/environment.ts`](src/environments/environment.ts) se usa automáticamente con `npm start`.  
+Los valores actuales apuntan a los servicios cloud del equipo:
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl:       'https://rrhh-prod.eba-p8y8badt.us-east-2.elasticbeanstalk.com',
+  graphqlPath:  '/graphql',
+  loginPath:    '/api/v1/auth/login',
+  refreshPath:  '/api/v1/auth/refresh',
+  nestUrl:      'https://tomorrow-pictures-guidelines-applicable.trycloudflare.com/graphql',
+  fastapiUrl:   'https://hr-fastapi.duckdns.org',
+  fastapiGql:   'https://hr-fastapi.duckdns.org/graphql',
+};
+```
+
+Si levantas los backends localmente, cambia `apiUrl` a `http://localhost:8080`, `nestUrl` a `http://localhost:3000` y `fastapiUrl`/`fastapiGql` a `http://localhost:8000`.
+
+### 3. Levantar el servidor de desarrollo
+
+```bash
+npm start
+```
+
+> Internamente ejecuta `ng serve`. Escucha en **http://localhost:4200** con *Live Reload* activo.
+
+### 4. Abrir en el navegador
+
+[http://localhost:4200](http://localhost:4200)
+
+---
+
+## 🐳 Inicio con Docker (local)
+
+El [`Dockerfile`](Dockerfile) incluido levanta el servidor de desarrollo dentro de un contenedor.
+
+```bash
+# Construir la imagen
+docker build -t rrhh-frontend .
+
+# Ejecutar el contenedor
+docker run -p 4200:4200 rrhh-frontend
+```
+
+Accede en: [http://localhost:4200](http://localhost:4200)
+
+---
+
+## 🚀 Build y despliegue en producción
+
+### 1. Variables de entorno para producción
+
+Edita [`src/environments/environment.prod.ts`](src/environments/environment.prod.ts) si necesitas cambiar alguna URL de producción:
+
+```typescript
+export const environment = {
+  production: true,
+  apiUrl:       'https://rrhh-prod.eba-p8y8badt.us-east-2.elasticbeanstalk.com',
+  graphqlPath:  '/graphql',
+  loginPath:    '/api/v1/auth/login',
+  refreshPath:  '/api/v1/auth/refresh',
+  nestUrl:      'https://tomorrow-pictures-guidelines-applicable.trycloudflare.com/graphql',
+  fastapiUrl:   'https://hr-fastapi.duckdns.org',
+  fastapiGql:   'https://hr-fastapi.duckdns.org/graphql',
+};
+```
+
+> **Nunca** edites `environment.ts` para producción. Angular lo reemplaza automáticamente con `environment.prod.ts` al compilar con `--configuration production`.
+
+### 2. Generar el bundle de producción
+
+```bash
+npm run build:prod
+```
+
+> Equivale a `ng build --configuration production`. Los artefactos optimizados y minificados se generan en **`dist/code-prueba/`**.
+
+### 3. Opciones de despliegue
+
+#### Netlify (recomendado)
+
+| Campo | Valor |
+|---|---|
+| Build command | `npm run build:prod` |
+| Publish directory | `dist/code-prueba` |
+
+Conecta el repositorio en [app.netlify.com](https://app.netlify.com). El despliegue es automático en cada `git push` a `master`.
+
+#### Servidor estático (Nginx)
+
+Copia el contenido de `dist/code-prueba/` a la raíz del servidor web y redirige todas las rutas a `index.html` para el enrutamiento SPA:
+
+```nginx
+server {
+    listen 80;
+    root /var/www/rrhh-frontend;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+---
+
+## Scripts disponibles
+
+| Comando | Descripción |
+|---|---|
+| `npm start` | Inicia el servidor de desarrollo (`ng serve`) en `localhost:4200` |
+| `npm run build` | Build de desarrollo (sin optimizaciones) |
+| `npm run build:prod` | **Build de producción** con `--configuration production` |
+| `npm run watch` | Build en modo watch (reconstruye al guardar cambios) |
+| `npm test` | Ejecuta los tests unitarios con Karma + Jasmine |
+
+---
+
+## Estructura de archivos relevante
+
+```
+rrhh_front_angular/
+├── src/
+│   ├── app/
+│   │   ├── modules/
+│   │   │   ├── auth/               # Login, guards, JWT
+│   │   │   └── core-hr/            # Empleados, Departamentos, Asistencia
+│   │   ├── pages/
+│   │   │   └── dashboard/          # Dashboard con reportes IA
+│   │   └── _metronic/
+│   │       └── shared/
+│   │           └── interceptors/
+│   │               └── auth.interceptor.ts  # Adjunta JWT a microservicios propios
+│   └── environments/
+│       ├── environment.ts           # ← Desarrollo (npm start)
+│       └── environment.prod.ts      # ← Producción (npm run build:prod)
+├── Dockerfile
+└── package.json
+```
+
+---
+
+## Solución de problemas frecuentes
+
+### `npm error Missing script: "dev"`
+Este proyecto usa `npm start`, no `npm run dev`:
+```bash
+npm start
+```
+
+### La Bitácora de Auditoría no carga datos
+El `nestUrl` apunta a un túnel Cloudflare que cambia en cada reinicio. Actualiza `nestUrl` en ambos environments con la nueva URL del túnel y reinicia el servidor.
+
+### `Property 'fastapiUrl' does not exist`
+Asegúrate de que `src/environments/environment.ts` y `environment.prod.ts` contengan la propiedad `fastapiUrl`. Ver sección [Variables de entorno](#2-variables-de-entorno-para-desarrollo).
+
+### Conflictos de dependencias en `npm install`
+```bash
+npm install --legacy-peer-deps
+```
