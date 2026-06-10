@@ -3,18 +3,17 @@
 // Al compilar con `ng build --configuration production`, Angular reemplaza este archivo por environment.prod.ts.
 export const environment = {
   production: false,
-
-  // Spring Boot — Autenticación, GraphQL, gestión RRHH principal.
+  // Spring Boot local (Módulos 1/2). En la nube (Abel) sería, p.ej.:
+  // 'http://beanstalk-rrhh-app-prod.eba-rvkrzdtv.us-east-2.elasticbeanstalk.com'
   apiUrl: 'http://localhost:8080',
   graphqlPath: '/graphql',
   loginPath: '/api/v1/auth/login',
   refreshPath: '/api/v1/auth/refresh',
-
-  // NestJS — Subida de archivos (S3/MinIO), automatizaciones n8n, bitácora DynamoDB.
+  // Microservicio NestJS (Módulo 3): expone la Bitácora de Auditoría (DynamoDB)
+  // vía GraphQL. En desarrollo local apunta al Nest en :3000.
+  // En la nube sería la URL pública del túnel cloudflared, p.ej.
+  // 'https://xxxx.trycloudflare.com' (ojo: esa URL cambia en cada arranque del túnel).
   nestUrl: 'http://localhost:3000',
-
-  // FastAPI — Servicio Biométrico e IA.
-  fastapiUrl: 'http://localhost:8001',
-  // fastapiGql: mantiene compatibilidad con código existente que apunta directo al endpoint GraphQL.
-  fastapiGql: 'http://localhost:8001/graphql',
+  // FastAPI (Módulo 1, Jose): endpoint GraphQL público del servicio de asistencia/ML.
+  fastapiGql: 'https://hr-fastapi.duckdns.org/graphql',
 };
