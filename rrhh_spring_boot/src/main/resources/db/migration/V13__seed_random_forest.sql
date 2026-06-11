@@ -11,6 +11,7 @@ DECLARE
     random_fecha_nac DATE;
     random_fecha_cont DATE;
     random_gen VARCHAR;
+    rand_dept NUMERIC;
     emp_id BIGINT;
     dep_id BIGINT;
     car_id BIGINT;
@@ -32,6 +33,28 @@ BEGIN
         -- Variación geográfica (+- 0.05 lat/lon approx 5km radius)
         random_lat := -16.5000 + (random() * 0.1 - 0.05);
         random_lon := -68.1200 + (random() * 0.1 - 0.05);
+        
+        -- Escoger departamento basado en una distribución ponderada (para gráficos realistas)
+        rand_dept := random();
+        IF rand_dept < 0.40 THEN
+            SELECT id INTO dep_id FROM departamentos WHERE nombre = 'Comercial & Ventas' LIMIT 1;
+        ELSIF rand_dept < 0.70 THEN
+            SELECT id INTO dep_id FROM departamentos WHERE nombre = 'Operaciones & Logística' LIMIT 1;
+        ELSIF rand_dept < 0.85 THEN
+            SELECT id INTO dep_id FROM departamentos WHERE nombre = 'Tecnología e Innovación' LIMIT 1;
+        ELSIF rand_dept < 0.95 THEN
+            SELECT id INTO dep_id FROM departamentos WHERE nombre = 'Recursos Humanos' LIMIT 1;
+        ELSE
+            SELECT id INTO dep_id FROM departamentos WHERE nombre = 'ML Dept' LIMIT 1;
+        END IF;
+        
+        -- Fallback por si algún departamento no existiera
+        IF dep_id IS NULL THEN
+            SELECT id INTO dep_id FROM departamentos ORDER BY random() LIMIT 1;
+        END IF;
+
+        -- Escoger cargo aleatorio
+        SELECT id INTO car_id FROM cargos ORDER BY random() LIMIT 1;
         
         -- Edad aleatoria: 20 a 50 años (7300 a 18000 días)
         random_fecha_nac := CURRENT_DATE - (random() * 10700 + 7300)::INT; 

@@ -8,10 +8,9 @@
 import { Platform } from 'react-native';
 import { sessionStore } from './sessionStore';
 
-const HOST = '192.168.100.105';
-export const REST_BASE_URL = `http://${HOST}:8080/api/v1`;
-export const GRAPHQL_URL = `http://${HOST}:8080/graphql`;
-export const FASTAPI_GRAPHQL_URL = `http://${HOST}:8001/graphql`;
+export const REST_BASE_URL = 'https://hr-springboot.duckdns.org/api/v1';
+export const GRAPHQL_URL = 'https://hr-springboot.duckdns.org/graphql';
+export const FASTAPI_GRAPHQL_URL = 'https://hr-fastapi.duckdns.org/graphql';
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export class RestError extends Error {

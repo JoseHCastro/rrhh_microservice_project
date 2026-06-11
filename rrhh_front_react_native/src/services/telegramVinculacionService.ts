@@ -17,9 +17,7 @@ import * as Linking from 'expo-linking';
 import { sessionStore } from './sessionStore';
 
 // ─── Configuración ─────────────────────────────────────────────────────────────
-// Mismo patrón de host que apiClient.ts: el emulador Android no resuelve "localhost".
-const HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-const NEST_BASE = `http://${HOST}:3000`;
+const NEST_BASE = 'https://tomorrow-pictures-guidelines-applicable.trycloudflare.com';
 const NEST_GRAPHQL_URL = `${NEST_BASE}/graphql`;
 const REQUEST_TIMEOUT_MS = 15_000;
 

@@ -103,10 +103,6 @@ services:
     container_name: rrhh_spring_boot
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rrhh_db
-      - SPRING_DATASOURCE_USERNAME=rrhh
-      - SPRING_DATASOURCE_PASSWORD=123
     env_file:
       - ./rrhh_spring_boot/.env
     volumes:
