@@ -16,7 +16,7 @@ public record AppProperties(
         S3Props s3,
         DynamoDbProps dynamodb
     ) {
-        public record S3Props(String bucket) {}
+        public record S3Props(String bucket, String endpoint) {}
         public record DynamoDbProps(String tableAuditoria, String endpoint) {}
     }
 

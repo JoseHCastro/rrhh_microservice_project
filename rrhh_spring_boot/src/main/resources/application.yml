@@ -50,6 +50,7 @@ app:
     region: ${AWS_REGION:us-east-1}
     s3:
       bucket: ${AWS_S3_BUCKET:rrhh-preplanillas-dev}
+      endpoint: ${AWS_S3_ENDPOINT:}
     dynamodb:
       table-auditoria: ${DYNAMODB_TABLE_AUDITORIA:rrhh_bitacora}
       endpoint: ${DYNAMODB_ENDPOINT:}

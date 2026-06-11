@@ -22,4 +22,7 @@ public interface PreplanillaRepository extends JpaRepository<Preplanilla, Long> 
     );
 
     Optional<Preplanilla> findByEmpleadoIdAndPeriodo(Long empleadoId, String periodo);
+
+    @Query("SELECT p FROM Preplanilla p JOIN FETCH p.empleado WHERE p.documentoHash = :documentoHash")
+    Optional<Preplanilla> findByDocumentoHash(@Param("documentoHash") String documentoHash);
 }

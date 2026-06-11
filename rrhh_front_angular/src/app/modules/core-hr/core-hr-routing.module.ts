@@ -10,6 +10,7 @@ import { MarcacionesComponent } from './asistencia/marcaciones.component';
 import { DispositivosComponent } from './asistencia/dispositivos.component';
 import { ReconocimientoComponent } from './asistencia/reconocimiento.component';
 import { PreplanillasComponent } from './nomina/preplanillas.component';
+import { VerificacionComponent } from './nomina/verificacion.component';
 import { UsuariosComponent } from './seguridad/usuarios.component';
 import { TokensComponent } from './seguridad/tokens.component';
 import { AuditoriaComponent } from './seguridad/auditoria.component';
@@ -33,6 +34,7 @@ const routes: Routes = [
 
   // Nómina y Reportes
   { path: 'preplanillas', component: PreplanillasComponent },
+  { path: 'verificacion', component: VerificacionComponent },
   { path: 'reportes', component: ReportesComponent },
 
   // Seguridad y Sistema

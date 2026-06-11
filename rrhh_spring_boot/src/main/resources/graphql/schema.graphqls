@@ -166,6 +166,8 @@ type Preplanilla {
     licencias: Int!
     horasExtra: BigDecimal!
     marcacionesObservadas: Int!
+    documentoHash: String
+    blockchainTx: String
     fechaCreacion: LocalDateTime!
 }
 
@@ -239,6 +241,8 @@ type Query {
     # Planilla
     preplanillas(empleadoId: ID, periodo: String): [Preplanilla!]!
     preplanilla(id: ID!): Preplanilla
+    urlDescargaPreplanilla(id: ID!): String
+    verificarPreplanilla(hashDocumento: String!): Preplanilla
 }
 
 type Mutation {

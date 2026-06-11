@@ -33,4 +33,13 @@ export class PreplanillaService {
       )
       .pipe(map((d) => d.generarPreplanilla));
   }
+
+  getUrlDescarga(id: string): Observable<string> {
+    return this.gql
+      .query<{ urlDescargaPreplanilla: string }>(
+        `query ($id: ID!) { urlDescargaPreplanilla(id: $id) }`,
+        { id }
+      )
+      .pipe(map((d) => d.urlDescargaPreplanilla));
+  }
 }

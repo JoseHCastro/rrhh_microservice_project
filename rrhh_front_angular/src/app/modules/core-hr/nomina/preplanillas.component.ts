@@ -14,6 +14,9 @@ import { Empleado, Preplanilla } from '../models/rrhh.models';
           <h1>Preplanillas Mensuales</h1>
         </div>
         <div class="pha">
+          <button class="btn" style="margin-right: 10px;" routerLink="/verificacion">
+            <app-icon name="checkCircle" [size]="16"></app-icon><span>Verificar PDF</span>
+          </button>
           <button class="btn pri" (click)="openModal()"><app-icon name="fileText" [size]="16"></app-icon><span>Generar preplanilla</span></button>
         </div>
       </div>
@@ -43,7 +46,7 @@ import { Empleado, Preplanilla } from '../models/rrhh.models';
                 <td class="mn">{{ p.retrasos }}</td>
                 <td class="mn">{{ p.horasExtra }}h</td>
                 <td>
-                  <a *ngIf="p.s3KeyUri" class="ab vw" [href]="p.s3KeyUri" target="_blank"><app-icon name="download" [size]="13"></app-icon> PDF</a>
+                  <a *ngIf="p.s3KeyUri" class="ab vw" href="javascript:void(0)" (click)="descargarPdf(p.id.toString())"><app-icon name="download" [size]="13"></app-icon> PDF</a>
                   <span *ngIf="!p.s3KeyUri" class="mt" style="font-size:11px">—</span>
                 </td>
               </tr>
@@ -107,6 +110,18 @@ export class PreplanillasComponent implements OnInit {
     this.service.generar(this.genEmpleadoId, this.genPeriodo).subscribe({
       next: () => { this.saving = false; this.modalOpen = false; this.toast.success('Preplanilla generada', 'Período ' + this.genPeriodo); this.load(); },
       error: (e) => { this.saving = false; this.toast.error('No se pudo generar', e?.message || ''); },
+    });
+  }
+
+  descargarPdf(id: string): void {
+    this.toast.success('Generando enlace seguro...', 'Por favor espera');
+    this.service.getUrlDescarga(id).subscribe({
+      next: (url) => {
+        if (url) {
+          window.open(url, '_blank');
+        }
+      },
+      error: (e) => this.toast.error('Error al descargar el PDF', e?.message || 'Revisa tu conexión o S3')
     });
   }
 }

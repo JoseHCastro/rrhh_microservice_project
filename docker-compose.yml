@@ -107,6 +107,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rrhh_db
       - SPRING_DATASOURCE_USERNAME=rrhh
       - SPRING_DATASOURCE_PASSWORD=123
+    env_file:
+      - ./rrhh_spring_boot/.env
     volumes:
       - ./rrhh_spring_boot:/app
       - spring_m2:/root/.m2
