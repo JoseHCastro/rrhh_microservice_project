@@ -5,7 +5,7 @@ export const environment = {
   production: true,
 
   // Spring Boot — Elastic Beanstalk (AWS us-east-2)
-  apiUrl: 'https://rrhh-prod.eba-p8y8badt.us-east-2.elasticbeanstalk.com',
+  apiUrl: 'https://hr-springboot.duckdns.org',
   graphqlPath: '/graphql',
   loginPath: '/api/v1/auth/login',
   refreshPath: '/api/v1/auth/refresh',
