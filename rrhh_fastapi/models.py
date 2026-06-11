@@ -34,3 +34,13 @@ class ReconocimientoFacial(Base):
     # activo agregado en V6 para controlar cuál embedding es el vigente
     activo = Column(Boolean, nullable=False, default=True)
 
+
+class PrediccionML(Base):
+    __tablename__ = "predicciones_ml"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    empleado_id = Column(BigInteger, nullable=False, index=True)
+    probabilidad_ausentismo = Column(Float, nullable=True)
+    probabilidad_rotacion = Column(Float, nullable=True)
+    fecha_prediccion = Column(DateTime, nullable=False, server_default=func.now())
+    modelo_version = Column(String(50), nullable=True)

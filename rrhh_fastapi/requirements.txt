@@ -31,3 +31,4 @@ setuptools==69.5.1
 scikit-learn
 pandas
 pandas==2.2.2
+joblib

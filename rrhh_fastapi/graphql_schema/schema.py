@@ -37,10 +37,10 @@ class Query:
         Devuelve la predicción del modelo Random Forest sobre el riesgo de ausentismo.
         """
         db = next(get_db())
-        from services.ml_random_forest_service import train_and_predict_risk
+        from services.ml_random_forest_service import get_riesgo_ausentismo
         
         try:
-            resultados = train_and_predict_risk(db, target_empleado_id=empleado_id)
+            resultados = get_riesgo_ausentismo(db, target_empleado_id=empleado_id)
             return [
                 RiesgoResponse(
                     empleado_id=r["empleado_id"],
